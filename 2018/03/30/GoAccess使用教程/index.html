@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Coffeezf's Blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="为了查看本站点的健康状况以及用户访问情况，就需要定期的分析服务器的 access 日志。但是由于没有使用日志分析工具，只能使用 cat、awk、sed 等命令做一些简单的日志分析统计，这样分析结果不理想也不全面，方法也极不高效。作为个人站点更适合引入轻量级的日志分析工具，例如 GoAccess ，其使用简单且分析效果较好">
+<meta name="keywords" content="GoAccess,分析nginx日志">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GoAccess使用教程">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2018&#x2F;03&#x2F;30&#x2F;GoAccess%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B&#x2F;index.html">
+<meta property="og:site_name" content="Coffeezf&#39;s Blog">
+<meta property="og:description" content="为了查看本站点的健康状况以及用户访问情况，就需要定期的分析服务器的 access 日志。但是由于没有使用日志分析工具，只能使用 cat、awk、sed 等命令做一些简单的日志分析统计，这样分析结果不理想也不全面，方法也极不高效。作为个人站点更适合引入轻量级的日志分析工具，例如 GoAccess ，其使用简单且分析效果较好">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-11-04T14:26:33.603Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2018/03/30/GoAccess%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>GoAccess使用教程 | Coffeezf's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Coffeezf's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/30/GoAccess%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Coffee">
+      <meta itemprop="description" content="磨刀不误砍柴工">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Coffeezf's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          GoAccess使用教程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-03-30 16:00:40" itemprop="dateCreated datePublished" datetime="2018-03-30T16:00:40+08:00">2018-03-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-04 22:26:33" itemprop="dateModified" datetime="2019-11-04T22:26:33+08:00">2019-11-04</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tools/" itemprop="url" rel="index">
+                    <span itemprop="name">tools</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>为了查看本站点的健康状况以及用户访问情况，就需要定期的分析服务器的 access 日志。但是由于没有使用日志分析工具，只能使用 cat、awk、sed 等命令做一些简单的日志分析统计，这样分析结果不理想也不全面，方法也极不高效。作为个人站点更适合引入轻量级的日志分析工具，例如 <a href="https://goaccess.io/" target="_blank" rel="noopener">GoAccess</a> ，其使用简单且分析效果较好</p>
+<a id="more"></a>
+
+
+
+<p><a href="https://github.com/allinurl/goaccess" target="_blank" rel="noopener">allinurl/goaccess</a><br><a href="https://goaccess.io/man" target="_blank" rel="noopener">GoAccess 官方文档</a><br><a href="https://www.fanhaobai.com/2017/06/go-access.html" target="_blank" rel="noopener">使用GoAccess分析Nginx日志</a><br><a href="https://wzfou.com/ngxtop-goaccess/" target="_blank" rel="noopener">服务器日志分析利器:ngxtop和GoAccess-实时监控可视化管理快速找出异常来源</a></p>
+<h3 id="使用GoAccess分析Nginx日志"><a href="#使用GoAccess分析Nginx日志" class="headerlink" title="使用GoAccess分析Nginx日志"></a>使用GoAccess分析Nginx日志</h3><h4 id="安装GoAccess"><a href="#安装GoAccess" class="headerlink" title="安装GoAccess"></a>安装GoAccess</h4><ul>
+<li>安装GoAccss前提<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 安装GoAccess前提</span><br><span class="line">yum install glib2 glib2-devel GeoIP-devel  ncurses-devel zlib zlib-devel libtokyocabinet-dev</span><br></pre></td></tr></table></figure></li>
+<li>使用到GoAccess 磁盘存储选项（ON-DISK STORAGE OPTIONS）特性，需要配置–enable-tcb = btree<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 安装TokyoCabinet</span><br><span class="line">wget https://src.fedoraproject.org/repo/pkgs/tokyocabinet/tokyocabinet-1.4.48.tar.gz/md5/fd03df6965f8f56dd5b8518ca43b4f5e/tokyocabinet-1.4.48.tar.gz</span><br><span class="line">tar -xzvf tokyocabinet-1.4.48.tar.gz</span><br><span class="line">cd tokyocabinet-1.4.48</span><br><span class="line">./configure --prefix=/usr --enable-off64 --enable-fastest --disable-zlib --disable-bzip</span><br><span class="line">#  Cygwin only - some processing is required</span><br><span class="line">sed -i.bak &apos;s/iprintf/my_iprintf/g&apos; *.c *.h bros/*.c</span><br><span class="line">sed -i.bak -e &apos;1332d&apos; tcucodec.c</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure></li>
+<li>安装GoAccess  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># 安装</span><br><span class="line">wget http://tar.goaccess.io/goaccess-1.2.tar.gz</span><br><span class="line">tar -xzvf goaccess-1.2.tar.gz</span><br><span class="line">cd goaccess-1.2/</span><br><span class="line">./configure --enable-utf8 --enable-geoip=legacy --enable-tcb=btree</span><br><span class="line">make</span><br><span class="line">make install</span><br><span class="line"># 建立软连接</span><br><span class="line">ln -s /usr/local/bin/goaccess /usr/bin/goaccess</span><br></pre></td></tr></table></figure></li>
+<li>根据你自己的需要，你可以在安装GoAccess调整配置选项。如下：<ul>
+<li>–enable-debug 使用调试标志编译且关闭编译器优化。</li>
+<li>–enable-utf8 宽字符支持。依赖 Ncursesw 模块。</li>
+<li>–enable-geoip=&lt;legacy|mmdb&gt; 地理位置支持。依赖 MaxMind GeoIP 模块。 legacy 将使用原始 GeoIP 数据库。 mmdb 将使用增强版 GeoIP2 数据库。</li>
+<li>–enable-tcb=&lt;memhash|btree&gt; Tokyo Cabinet 存储支持。 memhash 将使用 Tokyo Cabinet 的内存哈希数据库。btree 将使用 Tokyo Cabinet 的磁盘 B+Tree 数据库。 </li>
+<li>–-disable-zlib 禁止在 B+Tree 数据库上使用 zlib 压缩。</li>
+<li>–disable-bzip 禁止在 B+Tree 数据库上使用 bzip2 压缩。</li>
+<li>–with-getline 使用动态扩展行缓冲区用来解析完整的行请求，否则将使用固定大小(4096)的缓冲区。</li>
+<li>–with-openssl 使 GoAccess 与其 WebSocket 服务器之间的通信能够支持 OpenSSL。</li>
+</ul>
+</li>
+</ul>
+<h4 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h4><ul>
+<li>安装完成后，默认将配置文件goaccess.conf放置于/usr/local/etc路径，为了统一管理，使用cp /usr/local/etc/goaccess.conf /data1/coffee/goaccess_test/令将其拷贝到个人指定目录下。</li>
+<li>可以对配置文件做一些配置<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">time-format %H:%M:%S</span><br><span class="line">date-format %d/%b/%Y</span><br><span class="line">log-format %h %^[%d:%t %^] &quot;%r&quot; %s %b &quot;%R&quot; &quot;%u&quot;</span><br></pre></td></tr></table></figure></li>
+<li>其中，log-format 与 access.log 的 log_format 格式对应，每个参数以空格或者制表符分割，参考<a href="http://httpd.apache.org/docs/current/mod/mod_log_config.html" target="_blank" rel="noopener">自定义日志格式字符串</a>。参数说明如下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">%x  与时间格式和日期格式变量匹配的日期和时间字段。当给定时间戳而不是日期和时间在两个单独的变量时使用这个</span><br><span class="line">%t  匹配time-format格式的时间字段</span><br><span class="line">%d  匹配date-format格式的日期字段</span><br><span class="line">%v  服务器名称根据规范名称设置（服务器块或虚拟主机）</span><br><span class="line">%e  这是由HTTP验证确定的请求文档的人的用户名</span><br><span class="line">%h  host(客户端ip地址，包括ipv4和ipv6)</span><br><span class="line">%r  来自客户端的请求行</span><br><span class="line">%m  请求的方法</span><br><span class="line">%U  URL路径</span><br><span class="line">%q  查询字符串</span><br><span class="line">%H  请求协议</span><br><span class="line">%s  服务器响应的状态码</span><br><span class="line">%b  服务器返回的内容大小</span><br><span class="line">%R  HTTP请求头的referer字段</span><br><span class="line">%u  用户代理的HTTP请求报头</span><br><span class="line">%D  请求所花费的时间，单位微秒</span><br><span class="line">%T  请求所花费的时间，单位秒</span><br><span class="line">%L  以毫秒为单位提供请求所需的时间，以十进制数表示</span><br><span class="line">%^  忽略这一字段</span><br><span class="line">%~  向前移动通过日志字符串，直到找到非空格（！isspace）字符</span><br><span class="line">~h  X-Forwarded-For（XFF）字段中的主机（客户端IP地址，IPv4或IPv6）</span><br></pre></td></tr></table></figure></li>
+<li>其他常用配置<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">real-time-html true</span><br><span class="line">ssl-cert &lt;cert.crt&gt;</span><br><span class="line">ssl-key &lt;priv.key&gt;</span><br><span class="line">ws-url wss://&lt;your-domain&gt;</span><br><span class="line">port &lt;port&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>需要注意的几点:<ul>
+<li>real-time-html 用来使用实时刷新特性</li>
+<li>port 是用来和浏览器通信的，选一个没被占用的就行（别忘了在防火墙里开启端口！）</li>
+<li>如果你不走 https 的话，ssl-cert，ssl-key，ws-url都不是必需的</li>
+<li>说一下 ws-url，我之前没有设置这个选项的时候 HTML 里 WebSocket 用的协议是 ws://， 浏览器是不允许在 https 网页里使用非加密协议的，找了一圈发现 ws-url 这个选项，其实我觉得应该叫 ws-scheme 才贴切</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h4><ul>
+<li>查看 GoAccess 命令参数<em>goaccess -h</em>，常用参数如下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 常用参数</span><br><span class="line">-a --agent-list 启用由主机用户代理的列表。为了更快的解析，不启用该项</span><br><span class="line">-d --with-output-resolver 在HTML/JSON输出中开启IP解析，会使用GeoIP来进行IP解析</span><br><span class="line">-f --log-file 需要分析的日志文件路径</span><br><span class="line">-p --config-file 配置文件路径</span><br><span class="line">-o --output 输出格式，支持html、json、csv</span><br><span class="line">-m --with-mouse 控制面板支持鼠标点击</span><br><span class="line">-q --no-query-string 忽略请求的参数部分</span><br><span class="line">--real-time-html 实时生成HTML报告</span><br><span class="line">--daemonize 守护进程模式，--real-time-html时使用</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="分析日志"><a href="#分析日志" class="headerlink" title="分析日志"></a>分析日志</h4><p>分析日志/www/wwwlogs/access.log</p>
+<h5 id="终端控制台模式"><a href="#终端控制台模式" class="headerlink" title="终端控制台模式"></a>终端控制台模式</h5><ul>
+<li>执行命令<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf</span><br></pre></td></tr></table></figure></li>
+<li>控制台下的操作方法：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">F1   主帮助页面</span><br><span class="line">F5   重绘主窗口</span><br><span class="line">q    退出</span><br><span class="line">1-15 跳转到对应编号的模块位置 </span><br><span class="line">o    打开当前模块的详细视图</span><br><span class="line">j    当前模块向下滚动</span><br><span class="line">k    当前模块向上滚动</span><br><span class="line">s    对模块排序</span><br><span class="line">/    在所有模块中搜索匹配</span><br><span class="line">n    查找下一个出现的位置</span><br><span class="line">g    移动到第一个模块顶部</span><br><span class="line">G    移动到最后一个模块底部</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="生成HTML报告"><a href="#生成HTML报告" class="headerlink" title="生成HTML报告"></a>生成HTML报告</h5><ul>
+<li>执行命令：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.html</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="生成JSON报告"><a href="#生成JSON报告" class="headerlink" title="生成JSON报告"></a>生成JSON报告</h5><ul>
+<li>执行命令：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.json</span><br></pre></td></tr></table></figure>
+<h5 id="生成CSV文件"><a href="#生成CSV文件" class="headerlink" title="生成CSV文件"></a>生成CSV文件</h5></li>
+<li>执行命令：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf --no-csv-summary -o /data1/coffee/goaccess_test/html/go-access.csv</span><br></pre></td></tr></table></figure>
+<h5 id="其他特征"><a href="#其他特征" class="headerlink" title="其他特征"></a>其他特征</h5></li>
+<li>支持管道实时分析过滤<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tail -f access.log | goaccess -</span><br></pre></td></tr></table></figure></li>
+<li>支持多日志文件分析<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">goaccess access.log access.log.1</span><br><span class="line"># 甚至可以在读取常规文件时从管道解析文件</span><br><span class="line">cat access.log.2 | goaccess access.log access.log.1 -</span><br></pre></td></tr></table></figure>
+<h5 id="实时html输出"><a href="#实时html输出" class="headerlink" title="实时html输出"></a>实时html输出</h5></li>
+<li>执行命令<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.html --real-time-html</span><br></pre></td></tr></table></figure></li>
+<li>默认情况下，GoAccess使用生成的报告的主机名，也可以指定URL，例如：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.html --real-time-html --ws-url = goaccess.io</span><br></pre></td></tr></table></figure></li>
+<li>默认情况下，GoAccess监听的是7890端口，也可以指定端口<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.html --real-time-html --port = 9870</span><br></pre></td></tr></table></figure></li>
+<li>将WebSocket服务器绑定到除0.0.0.0以外的其他地址，可以将其指定<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.html --real-time-html --addr = 127.0.0.1</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="daemonize-方式"><a href="#daemonize-方式" class="headerlink" title="daemonize 方式"></a>daemonize 方式</h5><ul>
+<li>GoAccess 已经为我们考虑到这点了，它可以以 daemonize 模式运行，并提供创建实时 HTML 的功能，只需要在启动命令后追加–real-time-html –daemonize参数即可。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.html --real-time-html --daemonize</span><br><span class="line"># 监听端口7890</span><br><span class="line">$ netstat -tunpl | grep &quot;goaccess&quot;</span><br><span class="line">tcp   0   0 0.0.0.0:7890      0.0.0.0:*     LISTEN      21136/goaccess</span><br></pre></td></tr></table></figure></li>
+<li>以守护进程启动 GoAccess 后，使用 Websocket 建立长连接，它默认监听 7890 端口，可以通过–port参数指定端口号。</li>
+<li>由于我的站点启用了 HTTPS，所以 GoAccess 也需要使用 openssl，在配置文件goaccess.conf中配置ssl-cert和ssl-key项，并确保在安装过程中 configure 时已添加–with-openssl项来支持 openssl 。当使用 HTTPS 后 Websocket 通信时也应该使用 wss 协议，需要将ws-url项配置为wss://<a href="http://www.domain.com。" target="_blank" rel="noopener">www.domain.com。</a></li>
+</ul>
+<h5 id="crontab-方式"><a href="#crontab-方式" class="headerlink" title="crontab 方式"></a>crontab 方式</h5><p>在某些场景下，没有这样的实时性要求，可采用 crontab 机制实现定时更新 HTML 报表。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 每天执行</span><br><span class="line">0 0 1 * *</span><br><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.html 2&gt; /data1/coffee/goaccess_test/logs/go-access.log</span><br></pre></td></tr></table></figure>
+
+<h5 id="服务器"><a href="#服务器" class="headerlink" title="服务器"></a>服务器</h5><p>如果我们想以较低的优先级运行GoAccess，我们可以将其运行为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nice -n 19 goaccess access.log -a</span><br></pre></td></tr></table></figure>
+<p>如果你不想在服务器上安装它，你仍然可以从本地机器上运行它：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root @ server&apos;cat /var/log/apache2/access.log&apos;| goaccess -a -</span><br></pre></td></tr></table></figure>
+
+<h5 id="处理日志增量"><a href="#处理日志增量" class="headerlink" title="处理日志增量"></a>处理日志增量</h5><ul>
+<li>GoAccess能够通过磁盘B +树数据库逐步处理日志。它的工作原理如下：<ul>
+<li>数据集必须先保存–keep-db-files，然后可以加载相同的数据集–load-from-disk</li>
+<li>如果新数据通过（传送或通过日志文件），它会将其附加到原始数据集</li>
+<li>为了始终保存数据，–keep-db-files必须使用</li>
+<li>如果–load-from-disk没有使用–keep-db-files，关闭程序后数据库文件将被删除</li>
+</ul>
+</li>
+<li>例子：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 上个月访问日志</span><br><span class="line">goaccess access.log.1 --keep-db-files</span><br></pre></td></tr></table></figure>
+然后，加载它<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 追加本月访问日志，并保存新数据</span><br><span class="line">goaccess access.log --load-from-disk --keep-db-files</span><br></pre></td></tr></table></figure>
+仅读取持久数据（不解析新数据）<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">goaccess --load-from-disk --keep-db-files</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h5><ul>
+<li>当 access 日志被切割后，怎么合理使用 GoAccess 分析日志，–keep-db-files这个功能倒是可以尝试，这样就可以只分析新生产的日志文件了。</li>
+<li>一个实时的例子：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">goaccess -a -d \</span><br><span class="line">  -f /var/log/apache2/access.log \</span><br><span class="line">  -p /data1/coffee/goaccess_test/goaccess.conf \</span><br><span class="line">  -o /data1/coffee/goaccess_test/html/go-access.html \</span><br><span class="line">  --real-time-html \</span><br><span class="line">  --load-from-disk \</span><br><span class="line">  --keep-db-files</span><br></pre></td></tr></table></figure></li>
+<li>另一个实时的例子：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tail -f /var/log/apache2/access.log | goaccess \</span><br><span class="line">  -p /data1/coffee/goaccess_test/goaccess.conf \</span><br><span class="line">  -o /data1/coffee/goaccess_test/html/go-access.html \</span><br><span class="line">  --real-time-html \</span><br><span class="line">  --load-from-disk \</span><br><span class="line">  --keep-db-files -</span><br></pre></td></tr></table></figure></li>
+<li>注意–real-time-html 和 –daemonize冲突，不可同时使用</li>
+</ul>
+<h4 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a><a href="https://goaccess.io/faq" target="_blank" rel="noopener">常见问题</a></h4><p>以下罗列一些问题：</p>
+<ul>
+<li>解析日志文件时GoAccess的速度有多快？</li>
+<li>GoAccess的内存占用量是多少？</li>
+<li>我们如何配置Apache或Nginx的日志/日期/时间格式？</li>
+<li>配置文件位于何处？</li>
+<li>我如何配置IIS日志格式？</li>
+<li>我如何生成静态HTML报告？</li>
+<li>我如何生成实时HTML报告？</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/GoAccess/" rel="tag"># GoAccess</a>
+              <a href="/tags/%E5%88%86%E6%9E%90nginx%E6%97%A5%E5%BF%97/" rel="tag"># 分析nginx日志</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/03/27/hello-world/" rel="next" title="Hello World">
+                  <i class="fa fa-chevron-left"></i> Hello World
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2018/04/10/Fluentd%E5%AD%A6%E4%B9%A0/" rel="prev" title="Fluentd学习">
+                  Fluentd学习 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用GoAccess分析Nginx日志"><span class="nav-number">1.</span> <span class="nav-text">使用GoAccess分析Nginx日志</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#安装GoAccess"><span class="nav-number">1.1.</span> <span class="nav-text">安装GoAccess</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置"><span class="nav-number">1.2.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#命令"><span class="nav-number">1.3.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分析日志"><span class="nav-number">1.4.</span> <span class="nav-text">分析日志</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#终端控制台模式"><span class="nav-number">1.4.1.</span> <span class="nav-text">终端控制台模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#生成HTML报告"><span class="nav-number">1.4.2.</span> <span class="nav-text">生成HTML报告</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#生成JSON报告"><span class="nav-number">1.4.3.</span> <span class="nav-text">生成JSON报告</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#生成CSV文件"><span class="nav-number">1.4.4.</span> <span class="nav-text">生成CSV文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#其他特征"><span class="nav-number">1.4.5.</span> <span class="nav-text">其他特征</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#实时html输出"><span class="nav-number">1.4.6.</span> <span class="nav-text">实时html输出</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#daemonize-方式"><span class="nav-number">1.4.7.</span> <span class="nav-text">daemonize 方式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#crontab-方式"><span class="nav-number">1.4.8.</span> <span class="nav-text">crontab 方式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#服务器"><span class="nav-number">1.4.9.</span> <span class="nav-text">服务器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#处理日志增量"><span class="nav-number">1.4.10.</span> <span class="nav-text">处理日志增量</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#补充"><span class="nav-number">1.4.11.</span> <span class="nav-text">补充</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#常见问题"><span class="nav-number">1.5.</span> <span class="nav-text">常见问题</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="Coffee"
+    src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">Coffee</p>
+  <div class="site-description" itemprop="description">磨刀不误砍柴工</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Coffee</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

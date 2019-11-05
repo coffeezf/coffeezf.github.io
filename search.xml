@@ -1,0 +1,748 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Java架构的生命周期</title>
+    <url>/2019/11/05/Java%E6%9E%B6%E6%9E%84%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/</url>
+    <content><![CDATA[<p> 随着互联网的发展，网站应用的规模不断扩大，常规的垂直应用架构已无法应对，分布式服务架构以及流动计算架构势在必行，亟需一个治理系统确保架构有条不紊的演进。 </p>
+<a id="more"></a>
+
+
+
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><ol>
+<li><p>web1.0时代（1996年左右）</p>
+</li>
+<li><p>web2.0时代（2006年左右）</p>
+</li>
+<li><p>互联网时代（2011年左右）</p>
+<p>-&gt;互联网+ -&gt; 智慧城市</p>
+<p>嘀嘀打车</p>
+<p>饿了么</p>
+</li>
+<li><p>大数据 + 云计算</p>
+</li>
+<li><p>AI 未来以来时代</p>
+</li>
+</ol>
+<h2 id="第一时期-单一应用架构"><a href="#第一时期-单一应用架构" class="headerlink" title="第一时期   单一应用架构"></a>第一时期   单一应用架构</h2><p>all in one.所有的模块和代码都在一起。技术也不分层。（2000年左右）也是网站初期的最早架构。也是互联网发展的最早十七。所有代码、业务都卸载JSP里面。</p>
+<p><strong>问题</strong>：</p>
+<ol>
+<li>代码不具备可维护性；</li>
+<li>容错性差；</li>
+</ol>
+<blockquote>
+<p>因为所有的代码都卸载jsp页面中，当用户访问或某些原因发生异常</p>
+<ol>
+<li>用户会直接看到异常信息；</li>
+<li>有些情况下，该错误可能会导致服务宕机；</li>
+</ol>
+</blockquote>
+<h4 id="第一时期后阶段"><a href="#第一时期后阶段" class="headerlink" title="第一时期后阶段"></a>第一时期后阶段</h4><p><strong>解决方案</strong>：</p>
+<ol>
+<li><p>分成开发（提高维护性）</p>
+</li>
+<li><p>MVC架构是一个基于Java Web应用的设计模式；</p>
+</li>
+<li><p>服务器分离部署</p>
+</li>
+</ol>
+<p><strong>特点：</strong></p>
+<ol>
+<li>MVC分层开发，提高了维护性和解决容错性问题；</li>
+<li>数据库和项目分离部署；</li>
+</ol>
+<p><strong>问题：</strong></p>
+<p>随着用户的访问量持续增加，单台应用服务器无法满足需求。（高并发问题）</p>
+<p><strong>解决方案：</strong></p>
+<p>集群（集群方案解决）</p>
+<p><strong>会出现的问题：</strong></p>
+<ol>
+<li>高并发</li>
+<li>高可用</li>
+<li>高性能</li>
+</ol>
+<p><strong>如何提高系统并发能力：</strong></p>
+<ol>
+<li>垂直扩展（提升单机处理能力）;</li>
+<li>水平扩展（不断加服务器扩容）;</li>
+</ol>
+<h4 id="集群操作"><a href="#集群操作" class="headerlink" title="集群操作"></a>集群操作</h4><p>集群：同一个业务，部署在多个服务器上。</p>
+<p><strong>特点：</strong></p>
+<p>项目采用集群（多台服务器部署）</p>
+<p><strong>解决问题：</strong></p>
+<ol>
+<li><p>支持高并发；</p>
+</li>
+<li><p>支持高可用；</p>
+</li>
+</ol>
+<p><strong>问题：</strong></p>
+<ol>
+<li>（集群）用户的请求该往哪里进行转发？</li>
+<li>Session如何共享？Redis Cluster（Spring session + Redis）实现</li>
+</ol>
+<p><strong>数据库压力变大</strong></p>
+<p>通过nginx + tomcat集群方案，支持高并发（应用的性能提升访问），但是数据库的负载能力慢慢增加</p>
+<p><strong>问题：</strong></p>
+<p>怎么来提高数据库层面的访问压力？</p>
+<p><strong>解决方案：</strong></p>
+<p>读写分离</p>
+<p>主从数据库之间进行数据同步。master主要负责增删改操作，slave负责读（查询）操作。</p>
+<p>mysql本身就支持master-slave的功能（主从复制功能）</p>
+<p><strong>使用搜索引擎缓解数据库的访问压力+能力</strong></p>
+<p>数据库本身对大数据量查询效率慢，对模糊查询支持不是特别优秀。搜索是非常核心的功能（即使做了数据库读写分离），很多功能也不能有效解决（分词技术），针对该问题，有必要引入全文检索服务器功能。</p>
+<p><strong>目前主流的搜索引擎技术：</strong></p>
+<p>Solr  ElasticSearch</p>
+<p><strong>引入缓存机制减轻数据库的访问压力</strong></p>
+<p>随着访问量的持续增加，（数据库的访问压力持续增大，甚至无法满足需求）。虽然做了主从复制，对于热点数据，如果每次都从数据库中查询，数据库无法应付，导致无法对外提供服务。</p>
+<p>最佳解决方案： Redis</p>
+<ol>
+<li>读写性能非常好；</li>
+<li>提供了丰富的数据类型；</li>
+<li>原子性；</li>
+</ol>
+<p><strong>数据库的表进行水平和垂直拆分</strong></p>
+<p>一张表里面又1千条数据，查询的性能很高</p>
+<p>如查询有100万数据，查询的性能很慢</p>
+<p>单个表性能做提升，能力终归还是有限的</p>
+<p><strong>表为主：</strong></p>
+<ol>
+<li>垂直：一张表的字段总冷热字段拆分出两张表</li>
+<li>水平：按需求进行拆分。（省份、时间、）</li>
+<li>分库分表：采用第三方数据库中间件：mycat sharding-jdbc jrds(阿里)</li>
+</ol>
+<p><strong>当前设计特点：</strong></p>
+<p>通过设计保证高并发、高可用。（不断对服务器进行扩容）</p>
+<p>当前很多公司用的是这种架构。</p>
+<p><strong>问题：</strong></p>
+<ol>
+<li>服务器价钱增加。服务器忙闲不均问题，服务器的维护、人工成本、大量运维工程师</li>
+<li>可维护性很差</li>
+<li>可扩展性差（服务器）</li>
+<li>协同开发不方便（大家都去修改相同业务代码，易发生代码冲突/错误问题）</li>
+<li>单体架构（随着业务需求的不断增加，应用代码会变的越来越多），导致服务器部署时占用的磁盘空间变大。</li>
+</ol>
+<h2 id="第二时期-垂直应用架构"><a href="#第二时期-垂直应用架构" class="headerlink" title="第二时期 垂直应用架构"></a>第二时期 垂直应用架构</h2><p> 当访问量逐渐增大，单一应用增加机器带来的加速度越来越小，将应用拆成互不相干的几个应用，以提升效率。此时，用于加速前端页面开发的Web框架(MVC)是关键。 </p>
+<p><strong>水平拆分</strong></p>
+<p>将一个打的应用拆分成多个小应用</p>
+<p>一个原来的项目包含（controller/service/mapper/pojo…）</p>
+<p>拆分成不同的小应用</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">parent   pom       # 父工程（放所有的pom.xml）</span><br><span class="line">common.jar         # 公共库（相关工具类）</span><br><span class="line">pojo.jar           # java bean</span><br><span class="line">mapper.jar         # 数据持久层</span><br><span class="line">service.jar        # 业务逻辑层</span><br><span class="line">web.war            # web访问层</span><br></pre></td></tr></table></figure>
+
+<p>如何拆分，参考：<a href="https://www.bilibili.com/video/av70669026/?p=9" target="_blank" rel="noopener">单体项目水平拆分</a></p>
+<p><strong>解决问题：</strong></p>
+<ol>
+<li>模块复用；</li>
+<li>减少了服务器内容部署；</li>
+</ol>
+<p><strong>垂直拆分</strong></p>
+<p>按功能拆分</p>
+<p>将一个大的应用按功能拆分成多个互不相干的小应用，每个应用都是独立的WEB应用程序</p>
+<p><strong>解决问题：</strong></p>
+<ol>
+<li>维护性（如果发生需求变更，只需要调整某个应用模块即可）；</li>
+<li>功能扩展（随着业务的不断增加，只需要创建新的WEB程序即可）；</li>
+<li>协同开发方便（不同的团队修改不同的代码）；</li>
+<li>部署内容大小（性能扩展），如果哪台访问量大，只需要对该服务多部署几台即可；</li>
+</ol>
+<p>此时，用于加速前端页面开发的web框架（MVC）是关键。</p>
+<p><strong>问题：</strong></p>
+<ol>
+<li>客户对页面的要求会越来越高？（修改频繁）需要重新部署后台应用程序？（每个应用从头到尾都是完整的）。</li>
+<li>随着业务需求不断增加，需要很多个互不相干应用部署？这些应用之间一定会需要业务交互？</li>
+</ol>
+<h2 id="第三时期-分布式服务架构"><a href="#第三时期-分布式服务架构" class="headerlink" title="第三时期 分布式服务架构"></a>第三时期 分布式服务架构</h2><p> 当垂直应用越来越多，应用之间交互不可避免，将核心业务抽取出来，作为独立的服务，逐渐形成稳定的服务中心，使前端应用能更快速的响应多变的市场需求。此时，用于提高业务复用及整合的分布式服务框架(RPC)是关键。 </p>
+<p><strong>分布式服务架构</strong></p>
+<p>分布式：将一个业务拆分成多个子业务，部署在不同的服务器上。</p>
+<p><strong>解决方案：</strong></p>
+<ol>
+<li><p>客户对页面的要求会越来越高？（修改频繁）需要重新部署后台应用程序？（每个应用从头到尾都是完整的）。</p>
+<p>答：前后端分离</p>
+</li>
+</ol>
+<ol start="2">
+<li>随着业务需求不断增加，需要很多个互不相干应用部署？这些应用之间一定会需要业务交互？</li>
+</ol>
+<p><strong>分析：</strong></p>
+<p>以前如果都在一台服务器上（模块之间通过依赖jar完成调用）</p>
+<p>现在都在不同的服务器上做的部署（分布式）。服务和服务之间通过进程间调用。</p>
+<p>答：RPC/HTTP/HttpClient</p>
+<p><strong>此时，架构的改变一定会带来一些新的技术和新的问题</strong></p>
+<p><strong>问题：</strong></p>
+<ol>
+<li>分布式事务；</li>
+<li>分布式锁；</li>
+<li>分布式Session；</li>
+<li>分布式日志；</li>
+</ol>
+<p><strong>问题：</strong></p>
+<p>此时，用于提高业务服用和整合的分布式服务框架（RPC）是关键</p>
+<ol>
+<li>当服务越来越多，服务和服务之间的调用非常的混乱（我都不知道你有哪些服务）；</li>
+<li>当服务越来越多，容量的评估，小服务资源的浪费等问题逐渐显现；</li>
+</ol>
+<h2 id="第四时期-流动计算框架"><a href="#第四时期-流动计算框架" class="headerlink" title="第四时期 流动计算框架"></a>第四时期 流动计算框架</h2><p> 当服务越来越多，容量的评估，小服务资源的浪费等问题逐渐显现，此时需增加一个调度中心基于访问压力实时管理集群容量，提高集群利用率。此时，用于提高机器利用率的资源调度和治理中心(SOA)是关键。 </p>
+<p><strong>SOA</strong></p>
+<p>面向服务的架构（SOA）</p>
+<p><strong>分布式服务治理（解决方案）中间件：Dubbo/SpringCloud</strong></p>
+<p>基于访问压力实时管理集群容量，提高集群利用率。</p>
+<p>Dubbo底层用的RPC协议。（Dubbo是一个RPC框架）</p>
+<p>SpringCloud底层用的HTTP协议。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>微服务：</strong></p>
+<p>单体应用拆分成多个互不相干的小应用，每个小的应用称为微服务。</p>
+<p>SOA(面向服务架构)  -&gt;  微服务架构</p>
+<p><strong>问题：</strong></p>
+<ol>
+<li>构建单体应用时，（SSM）即可。服务进行拆分（多个小应用）比如10个应用（大量重复的jar包，大量重复的配置文件）？</li>
+</ol>
+<p><strong>解决方案：</strong></p>
+<p>SpringBoot</p>
+<p>SpringBoot目的：就是为了简化代码的开发和简化代码的框架构建。</p>
+<p><strong>架构的改变一定会带来新的技术和新的问题</strong></p>
+<p><strong>新技术：</strong></p>
+<p>SpringBoot Dubbo SpringCloud</p>
+<p><strong>新的问题和解决方案：</strong></p>
+<ol>
+<li>分布式事务——两段式提交；</li>
+<li>分布式锁——Redis SetNX功能，还有Zookeeper也能解决</li>
+<li>分布式Session——Redis 和Spring Session</li>
+<li>分布式日志——ELK</li>
+</ol>
+<p><strong>优点：</strong></p>
+<ol>
+<li>微服务对服务的拆分变得更细（复用性强），提高开发效率；</li>
+<li>可根据需求使用最新的需求，比如SSH，SSM技术可以随意选择；</li>
+<li>适用于互联网项目，迭代周期短、开发效率快；</li>
+</ol>
+<p><strong>缺点：</strong></p>
+<ol>
+<li>微服务过多的话、服务的管理（治理）成本高。</li>
+<li>不利于服务的部署，解决方案（Docker-&gt;K8s）</li>
+<li>技术难点在增加（分布式事务、锁、Session、日志）</li>
+<li>对程序员的技术要求变高（Dubbo SpringCloud SpringBoot Docker K8s）</li>
+</ol>
+]]></content>
+      <categories>
+        <category>java</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+        <tag>架构</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hexo搭建博客教程</title>
+    <url>/2019/11/04/Hexo%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E6%95%99%E7%A8%8B/</url>
+    <content><![CDATA[<p>现在越来越多的人喜欢利用Github搭建静态网站，原因不外乎简单省钱。本人也利用hexo+github搭建了本博客，用于分享一些心得。在此过程中，折腾博客的各种配置以及功能占具了我一部分时间，在此详细记录下我是如何利用hexo+github搭建静态博客以及一些配置相关问题，以免过后遗忘，且当备份之用。</p>
+<a id="more"></a>
+
+<p>参考：<br><a href="https://hexo.io/zh-cn/" target="_blank" rel="noopener">hexo官网</a><br><a href="https://theme-next.org/docs/getting-started/" target="_blank" rel="noopener">hexo＋next主题配置官网</a><br><a href="https://thief.one/2017/03/03/Hexo%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E6%95%99%E7%A8%8B/" target="_blank" rel="noopener">nMask 的 Hexo搭建博客教程</a><br><a href="https://www.jianshu.com/p/3a05351a37dc" target="_blank" rel="noopener">Hexo的Next主题详细配置</a><br><a href="https://www.lixint.me/hexo-blog.html" target="_blank" rel="noopener">github pages +hexo 博客搭建，Next主题个性化修改</a></p>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><ul>
+<li><p>下载node.js并安装（官网下载安装），默认会安装npm。</p>
+</li>
+<li><p>下载安装git（官网下载安装）</p>
+</li>
+<li><p>通过npm安装hexo。打开cmd 运行命令：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install -g hexo</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="本地搭建hexo静态博客"><a href="#本地搭建hexo静态博客" class="headerlink" title="本地搭建hexo静态博客"></a>本地搭建hexo静态博客</h3><ul>
+<li>创建博客写作目录：  <em>mkdir blog_coffee</em></li>
+<li>cd到blog_coffee目录下，初始化hexo：  <em>hexo init</em></li>
+<li>启动hexo服务：  <em>hexo server</em></li>
+<li>测试本地是否能访问自己的博客<a href="http://localhost:4000/" target="_blank" rel="noopener">http://localhost:4000/</a></li>
+</ul>
+<h3 id="将博客与Github关联"><a href="#将博客与Github关联" class="headerlink" title="将博客与Github关联"></a>将博客与Github关联</h3><ul>
+<li><p>在Github上创建名字为XXX.github.io的项目，XXX为自己的github用户名。</p>
+</li>
+<li><p>打开本地的blog_coffee文件夹项目内的_config.yml配置文件，将其中的deploy 相关配置设置为git</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repository: git@github.com:coffeezf/coffeezf.github.io.git</span><br><span class="line">  branch: master</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装hexo git发布插件，运行：<em>npm install hexo-deployer-git –save</em></p>
+</li>
+<li><p>至此，博客已经搭建好，也能通过github的域名访问。也可以设置将自己的域名绑定到github这个博客项目上。可以在阿里云上买了一个域名，将博客绑定自己的域名。</p>
+</li>
+</ul>
+<h3 id="更新博客内容（写markdown文件）"><a href="#更新博客内容（写markdown文件）" class="headerlink" title="更新博客内容（写markdown文件）"></a>更新博客内容（写markdown文件）</h3><p>至此博客已经搭建完毕，域名也已经正常解析，那么剩下的问题就是更新内容了。</p>
+<h4 id="更新文章"><a href="#更新文章" class="headerlink" title="更新文章"></a>更新文章</h4><ul>
+<li>在blog_coffee目录下执行：<em>hexo new “我的第一篇文章”</em>，会在source-&gt;_posts文件夹内生成一个.md文件。</li>
+<li>编辑该文件（遵循Markdown规则）</li>
+<li>修改起始字段<ul>
+<li>title 文章的标题</li>
+<li>date 创建日期 （文件的创建日期 ）</li>
+<li>updated 修改日期 （ 文件的修改日期）</li>
+<li>comments 是否开启评论 true</li>
+<li>tags 标签</li>
+<li>categories 分类</li>
+<li>permalink url中的名字（文件名）</li>
+</ul>
+</li>
+<li>编写正文内容（MakeDown）</li>
+<li><em>hexo clean</em> 删除本地静态文件（Public目录），可不执行。</li>
+<li><em>hexo g</em> 生成本地静态文件（Public目录）</li>
+<li><em>hexo deploy</em> 将本地静态文件推送至github（或者 <em>hexo d</em>）</li>
+<li>补充：hexo常用命令如下。更多命令参考<a href="https://hexo.io/zh-cn/docs/commands.html" target="_blank" rel="noopener">hexo 命令</a><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo new &quot;文章名&quot;     在source-&gt;_posts文件夹内生成一个.md文件</span><br><span class="line">hexo clean           删除本地静态文件（Public目录）</span><br><span class="line">hexo g               本地生成静态文件（Public目录）</span><br><span class="line">hexo d               将本地静态文件推送至Github</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="使用next主题"><a href="#使用next主题" class="headerlink" title="使用next主题"></a>使用next主题</h3><p>访问<a href="http://www.zhihu.com/question/24422335" target="_blank" rel="noopener">主题列表</a>，获取主题代码。<br>这里以next主题示例</p>
+<h4 id="安装主题"><a href="#安装主题" class="headerlink" title="安装主题"></a>安装主题</h4><ul>
+<li><p>下载主题</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd blog_coffee</span><br><span class="line"># 新版本</span><br><span class="line">git clone https://github.com/theme-next/hexo-theme-next themes/next</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启用主题：开_config.yml文件，将theme修改为next</p>
+</li>
+<li><p>验证主题： <em>hexo s –debug</em> 启调试模式.注意观察命令行输出是否有任何异常信息，如果你碰到问题，这些信息将帮助他人更好的定位错误。</p>
+</li>
+</ul>
+<h4 id="设置主题"><a href="#设置主题" class="headerlink" title="设置主题"></a>设置主题</h4><p>hexo-next主题下的一些个性化配置，参考：<a href="http://theme-next.iissnan.com/" target="_blank" rel="noopener">Next主题配置</a><br>编辑主题配置文件_config.yml文件：</p>
+<ul>
+<li><p>选择 scheme风格（不做调整）</p>
+</li>
+<li><p>设置 languge语言，修改hexo配置文件_config.yml</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">language： zh_CN</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>设置 menu菜单 ：菜单配置包括三个部分，第一是菜单项（名称和链接），第二是菜单项的显示文本，第三是菜单项对应的图标。</p>
+<ul>
+<li>设定菜单内容 menu，开启about、tags、categories</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">menu:</span><br><span class="line">  home: / || home</span><br><span class="line">  about: /about/ || user</span><br><span class="line">  tags: /tags/ || tags</span><br><span class="line">  categories: /categories/ || th</span><br><span class="line">  archives: /archives/ || archive</span><br><span class="line">  #schedule: /schedule/ || calendar</span><br><span class="line">  #sitemap: /sitemap.xml || sitemap</span><br><span class="line">  #commonweal: /404/ || heartbeat</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>让菜单生效，执行下面命令，生成相关分类页面：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo new page tags</span><br><span class="line">hexo new page categories</span><br><span class="line">hexo new page about</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>参考<a href="https://www.jianshu.com/p/3a05351a37dc" target="_blank" rel="noopener">Hexo的Next主题详细配置</a></p>
+</li>
+</ul>
+</li>
+<li><p>设置 sidebar 侧栏</p>
+</li>
+<li><p>设置 avatar 头像（替换主题配置文件avatar属性gif文件，并开启路径）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">avatar:</span><br><span class="line">  # Replace the default image and set the url here.</span><br><span class="line">  url: /images/avatar.gif</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置 author 作者昵称（修改hexo中_config.yml中author属性）</p>
+</li>
+<li><p>设置 description 站点描述（修改hexo中_config.yml中description属性）</p>
+</li>
+</ul>
+<h4 id="添加categories模块"><a href="#添加categories模块" class="headerlink" title="添加categories模块"></a>添加categories模块</h4><ul>
+<li>新建一个分类页面<em>hexo new page categories</em></li>
+<li>你会发现你的source文件夹下有了categorcies/index.md，打开index.md文件将title设置为title: 分类</li>
+<li>打开 主题配置文件 找到menu，将categorcies取消注释</li>
+<li>把文章归入分类只需在文章的顶部标题下方添加categories字段，即可自动创建分类名并加入对应的分类中</li>
+<li>举个例子：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">title: 分类测试文章标题</span><br><span class="line">categories: 分类名</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="添加tags模块"><a href="#添加tags模块" class="headerlink" title="添加tags模块"></a>添加tags模块</h4><ul>
+<li>新建一个标签页面<em>hexo new page tags</em></li>
+<li>你会发现你的source文件夹下有了tags/index.md，打开index.md文件将title设置为title: 标签</li>
+<li>打开 主题配置文件 找到menu，将tags取消注释</li>
+<li>把文章添加标签只需在文章的顶部标题下方添加tags字段，即可自动创建标签名并归入对应的标签中</li>
+<li>举个例子：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">title: 标签测试文章标题</span><br><span class="line">tags: </span><br><span class="line">  - 标签1</span><br><span class="line">  - 标签2</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="添加about模块"><a href="#添加about模块" class="headerlink" title="添加about模块"></a>添加about模块</h4><ul>
+<li>新建一个关于页面<em>hexo new page about</em></li>
+<li>你会发现你的source文件夹下有了about/index.md，打开index.md文件即可编辑关于你的信息，可以随便编辑。</li>
+<li>打开 主题配置文件 找到menu，将about取消注释</li>
+</ul>
+<h4 id="添加search功能"><a href="#添加search功能" class="headerlink" title="添加search功能"></a>添加search功能</h4><ul>
+<li>安装 <a href="https://link.jianshu.com/?t=https%3A%2F%2Fgithub.com%2Fflashlab%2Fhexo-generator-search" target="_blank" rel="noopener">hexo-generator-searchdb</a> 插件<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install hexo-generator-searchdb --save</span><br></pre></td></tr></table></figure></li>
+<li>打开 站点配置文件 找到Extensions在下面添加<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># search</span><br><span class="line">search:</span><br><span class="line">  path: search.xml</span><br><span class="line">  field: post</span><br><span class="line">  format: html</span><br><span class="line">  limit: 10000</span><br></pre></td></tr></table></figure></li>
+<li>打开 主题配置文件 找到Local search，将enable设置为true</li>
+</ul>
+<h4 id="添加阅读全文按钮"><a href="#添加阅读全文按钮" class="headerlink" title="添加阅读全文按钮"></a>添加阅读全文按钮</h4><p>在首页显示一篇文章的部分内容，并提供一个链接跳转到全文页面是一个常见的需求。 NexT 提供三种方式来控制文章在首页的显示方式。 也就是说，在首页显示文章的摘录并显示 阅读全文 按钮，可以通过以下方法：</p>
+<ul>
+<li>在文章中使用 <!-- more --> 手动进行截断，Hexo 提供的方式 推荐</li>
+<li>在文章的 <a href="https://hexo.io/docs/front-matter.html" target="_blank" rel="noopener">front-matter</a> 中添加 description，并提供文章摘录</li>
+<li>自动形成摘要，在 主题配置文件 中添加：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">auto_excerpt:</span><br><span class="line">  enable: true</span><br><span class="line">  length: 150</span><br></pre></td></tr></table></figure>
+默认截取的长度为 150 字符，可以根据需要自行设定<blockquote>
+<p>建议使用 <!-- more -->（即第一种方式），除了可以精确控制需要显示的摘录内容以外， 这种方式也可以让 Hexo 中的插件更好的识别。</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="博文压缩"><a href="#博文压缩" class="headerlink" title="博文压缩"></a>博文压缩</h4><p>在站点的根目录下执行以下命令：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install gulp -g</span><br><span class="line">npm install gulp-minify-css gulp-uglify gulp-htmlmin gulp-htmlclean gulp --save</span><br></pre></td></tr></table></figure>
+
+<p>在博客根目录下新建 gulpfile.js ，并填入以下内容：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var gulp = require(&apos;gulp&apos;);</span><br><span class="line">var minifycss = require(&apos;gulp-minify-css&apos;);</span><br><span class="line">var uglify = require(&apos;gulp-uglify&apos;);</span><br><span class="line">var htmlmin = require(&apos;gulp-htmlmin&apos;);</span><br><span class="line">var htmlclean = require(&apos;gulp-htmlclean&apos;);</span><br><span class="line">// 压缩 public 目录 css</span><br><span class="line">gulp.task(&apos;minify-css&apos;, function() &#123;</span><br><span class="line">    return gulp.src(&apos;./public/**/*.css&apos;)</span><br><span class="line">        .pipe(minifycss())</span><br><span class="line">        .pipe(gulp.dest(&apos;./public&apos;));</span><br><span class="line">&#125;);</span><br><span class="line">// 压缩 public 目录 html</span><br><span class="line">gulp.task(&apos;minify-html&apos;, function() &#123;</span><br><span class="line">  return gulp.src(&apos;./public/**/*.html&apos;)</span><br><span class="line">    .pipe(htmlclean())</span><br><span class="line">    .pipe(htmlmin(&#123;</span><br><span class="line">         removeComments: true,</span><br><span class="line">         minifyJS: true,</span><br><span class="line">         minifyCSS: true,</span><br><span class="line">         minifyURLs: true,</span><br><span class="line">    &#125;))</span><br><span class="line">    .pipe(gulp.dest(&apos;./public&apos;))</span><br><span class="line">&#125;);</span><br><span class="line">// 压缩 public/js 目录 js</span><br><span class="line">gulp.task(&apos;minify-js&apos;, function() &#123;</span><br><span class="line">    return gulp.src(&apos;./public/**/*.js&apos;)</span><br><span class="line">        .pipe(uglify())</span><br><span class="line">        .pipe(gulp.dest(&apos;./public&apos;));</span><br><span class="line">&#125;);</span><br><span class="line">// 执行 gulp 命令时执行的任务</span><br><span class="line">gulp.task(&apos;default&apos;, [</span><br><span class="line">    &apos;minify-html&apos;,&apos;minify-css&apos;,&apos;minify-js&apos;</span><br><span class="line">]);</span><br></pre></td></tr></table></figure>
+
+<p>生成博文是执行 hexo g &amp;&amp; gulp 就会根据 gulpfile.js 中的配置，对 public 目录中的静态资源文件进行压缩。</p>
+<p>更多内容请参考<a href="https://thief.one/" target="_blank" rel="noopener">Hexo搭建博客教程</a></p>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Fluentd学习</title>
+    <url>/2018/04/10/Fluentd%E5%AD%A6%E4%B9%A0/</url>
+    <content><![CDATA[<h3 id="什么是Fluentd？"><a href="#什么是Fluentd？" class="headerlink" title="什么是Fluentd？"></a>什么是Fluentd？</h3><ul>
+<li>Fluentd是一款完全免费且完全开源的日志收集器，可立即让您拥有125种以上系统的“ Log Everything ”体系结构。</li>
+<li>Fluentd将日志视为JSON，一种流行的机器可读格式。它主要是用C语言编写的，它提供了一个简单的Ruby包装器，为用户提供了灵活性。</li>
+<li>Fluentd的可扩展性已经在现场得到验证：目前其最大的用户正在收集来自50,000多台服务器的日志。</li>
+</ul>
+<a id="more"></a>
+
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.fluentd.org/" target="_blank" rel="noopener">fluentd</a><br><a href="https://docs.fluentd.org/v1.0/articles/quickstart" target="_blank" rel="noopener">fluentd Quickstart Guide</a><br><a href="http://www.runoob.com/ruby/ruby-installation-unix.html" target="_blank" rel="noopener">Ruby 安装 - Linux</a><br><a href="http://xiajian.github.io/2014/10/22/bundle" target="_blank" rel="noopener">关于Bundler</a><br><a href="https://blog.laisky.com/p/fluentd/#安装-fluentd" target="_blank" rel="noopener">fluentd 安装、配置、使用介绍</a></p>
+<h4 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h4><ul>
+<li>使用JSON进行统一日志记录：Fluentd尽可能将数据构建为JSON：这允许Fluentd 统一处理日志数据的所有方面：在多个源和目标（统一日志记录层）上收集，过滤，缓冲和输出日志。JSON使下游数据处理更加容易，因为它具有足够的结构以便在保留灵活模式的同时可访问。</li>
+<li>可插入的体系结构：Fluentd有一个灵活的插件系统，允许社区扩展其功能。我们的500多个社区贡献的插件连接了数十个数据源和数据输出。通过利用插件，您可以立即开始更好地使用您的日志。</li>
+<li>所需的最少资源：Fluentd是用C语言和Ruby的组合编写的，并且只需很少的系统资源。香草实例在30-40MB内存上运行，可以处理13,000个事件/秒/内核。如果您的内存需求更为紧张（-450kb），请查看Fluentd 的轻量级转发器Fluent Bit。</li>
+<li>内置可靠性：Fluentd支持基于内存和文件的缓冲以防止节点间数据丢失。Fluentd还支持强大的故障转移功能，并可设置高可用性。2,000多家数据驱动型公司依靠Fluentd通过更好地使用和理解其日志数据来区分他们的产品和服务。</li>
+</ul>
+<h4 id="Fluentd历史"><a href="#Fluentd历史" class="headerlink" title="Fluentd历史"></a>Fluentd历史</h4><p>Fluentd 在2011年由Sadayuki “Sada” Furuhashi构思.Sada是Treasure Data，Inc.的共同创始人，该公司是Fluentd项目的主要赞助商。自2011年10月开放源代码以来，Fluentd项目发展迅猛：几十个贡献者，数百个社区贡献的插件，数以千计的用户以及数以万亿计的事件被收集，过滤和存储。目前Masahiro“Masa”Nakagawa是主要的维护者。</p>
+<h3 id="快速入门指南"><a href="#快速入门指南" class="headerlink" title="快速入门指南"></a>快速入门指南</h3><h4 id="安装Fluentd"><a href="#安装Fluentd" class="headerlink" title="安装Fluentd"></a>安装Fluentd</h4><ul>
+<li><p><a href="https://docs.fluentd.org/v1.0/articles/install-by-rpm" target="_blank" rel="noopener">通过RPM包安装Fluentd</a>（Redhat Linux）</p>
+</li>
+<li><p><a href="https://docs.fluentd.org/v1.0/articles/install-by-deb" target="_blank" rel="noopener">Deb包安装Fluentd</a>（Ubuntu / Debian Linux）</p>
+<ul>
+<li>安装前<ul>
+<li>设置NTP<ul>
+<li>强烈建议您在节点上设置NTP守护进程（例如chrony，ntpd等）以获得准确的当前时间戳。这对生产级记录服务至关重要。</li>
+</ul>
+</li>
+<li>增加文件描述符的最大数量<ul>
+<li>可以使用该ulimit -n命令检查当前文件描述符的最大数量<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ulimit -n</span><br></pre></td></tr></table></figure></li>
+<li>如果你的控制台显示1024，它是不够的。请将以下几行添加到您的/etc/security/limits.conf文件并重新启动您的机器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root soft nofile 65536</span><br><span class="line">root hard nofile 65536</span><br><span class="line">* soft nofile 65536</span><br><span class="line">* hard nofile 65536</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>优化网络内核参数<ul>
+<li>由许多Fluentd实例组成的高负载环境，请将这些参数添加到您的/etc/sysctl.conf文件中。请输入sysctl -p或重新启动您的节点以使更改生效。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">net.core.somaxconn = 1024</span><br><span class="line">net.core.netdev_max_backlog = 5000</span><br><span class="line">net.core.rmem_max = 16777216</span><br><span class="line">net.core.wmem_max = 16777216</span><br><span class="line">net.ipv4.tcp_wmem = 4096 12582912 16777216</span><br><span class="line">net.ipv4.tcp_rmem = 4096 12582912 16777216</span><br><span class="line">net.ipv4。 tcp_max_syn_backlog = 8096</span><br><span class="line">net.ipv4.tcp_slow_start_after_idle = 0</span><br><span class="line">net.ipv4.tcp_tw_reuse = 1</span><br><span class="line">net.ipv4.ip_local_port_range = 10240 65535</span><br></pre></td></tr></table></figure></li>
+<li>这些内核选项最初来自演示文稿“ Netflix如何调整EC2实例的性能 ”，由AWS Re：Invent 2017高级性能架构师Brendan Gregg提供</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>安装（从Apt存储库进行安装）<ul>
+<li>CentOS 安装<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -L https://toolbelt.treasuredata.com/sh/install-redhat-td-agent3.sh | sh</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>启动守护进程<ul>
+<li>systemd<ul>
+<li>/lib/systemd/system/td-agent脚本用于start，stop或restart agent<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo systemctl start td-agent.service</span><br><span class="line">sudo systemctl status td-agent.service</span><br></pre></td></tr></table></figure></li>
+<li>如果你想自定义系统行为，将 td-agent.service 添加到 /etc/systemd/system</li>
+</ul>
+</li>
+<li>init.d<ul>
+<li>/etc/init.d/td-agent 脚本用来提供start，stop或者restart agent。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">/etc/init.d/td-agent restart</span><br><span class="line">/etc/init.d/td-agent status</span><br></pre></td></tr></table></figure></li>
+<li>下面的命令也支持：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">/etc/init.d/td-agent start</span><br><span class="line">/etc/init.d/td-agent stop</span><br><span class="line">/etc/init.d/td-agent restart</span><br><span class="line">/etc/init.d/td-agent status</span><br></pre></td></tr></table></figure></li>
+<li>请确保你的配置文件位置在/etc/td-agent/td-agent.conf</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>通过HTTP发布示例日志<ul>
+<li>默认情况下，/etc/td-agent/td-agent.conf配置为从HTTP获取日志并将它们路由到标准输出（/var/log/td-agent/td-agent.log）。您可以使用curl命令发布示例日志记录<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -X POST -d &apos;json=&#123;&quot;json&quot;:&quot;message&quot;&#125;&apos; http://localhost:8888/debug.test</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>下一步<br>请参阅以下教程以了解如何从各种数据源收集数据</li>
+<li>基本配置<ul>
+<li><a href="https://docs.fluentd.org/v1.0/articles/config-file" target="_blank" rel="noopener">配置文件</a></li>
+</ul>
+</li>
+<li>应用程序日志<ul>
+<li><a href="https://docs.fluentd.org/v1.0/articles/ruby" target="_blank" rel="noopener">Ruby</a>,<a href="https://docs.fluentd.org/v1.0/articles/java" target="_blank" rel="noopener">Java</a>,<a href="https://docs.fluentd.org/v1.0/articles/python" target="_blank" rel="noopener">Python</a>,<a href="https://docs.fluentd.org/v1.0/articles/php" target="_blank" rel="noopener">PHP</a>,<a href="https://docs.fluentd.org/v1.0/articles/perl" target="_blank" rel="noopener">Perl</a>,<a href="https://docs.fluentd.org/v1.0/articles/nodejs" target="_blank" rel="noopener">Node.js</a>,<a href="https://docs.fluentd.org/v1.0/articles/scala" target="_blank" rel="noopener">Scala</a></li>
+</ul>
+</li>
+<li>例子<ul>
+<li><a href="https://docs.fluentd.org/v1.0/articles/apache-to-s3" target="_blank" rel="noopener">将Apache日志存储到Amazon S3中</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/apache-to-mongodb" target="_blank" rel="noopener">将Apache日志存储到MongoDB中</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/http-to-hdfs" target="_blank" rel="noopener">将数据收集到HDFS中</a></li>
+</ul>
+</li>
+<li>更多参考<ul>
+<li><a href="http://docs.treasuredata.com/articles/td-agent-changelog" target="_blank" rel="noopener">td-agentde的更新日志</a></li>
+<li><a href="https://github.com/treasure-data/chef-td-agent/" target="_blank" rel="noopener">Chef Cookbook</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a href="https://docs.fluentd.org/v1.0/articles/install-by-msi" target="_blank" rel="noopener">通过MSI包安装Fluentd</a>（Windows msi）</p>
+</li>
+<li><p><a href="https://docs.fluentd.org/v1.0/articles/install-by-gem" target="_blank" rel="noopener">由Ruby Gem安装Fluentd</a></p>
+</li>
+<li><p><a href="https://docs.fluentd.org/v1.0/articles/install-from-source" target="_blank" rel="noopener">从源代码安装Fluentd</a></p>
+</li>
+</ul>
+<h4 id="用例"><a href="#用例" class="headerlink" title="用例"></a>用例</h4><p>下面显示的文章涵盖了Fluentd的典型用例。根据需求选择查看：</p>
+<ul>
+<li>用例<ul>
+<li><a href="https://docs.fluentd.org/v1.0/articles/free-alternative-to-splunk-by-fluentd" target="_blank" rel="noopener">像Splunk一样进行数据搜索</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/splunk-like-grep-and-alert-email" target="_blank" rel="noopener">数据过滤和告警</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/http-to-td" target="_blank" rel="noopener">有价值的数据分析</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/apache-to-mongodb" target="_blank" rel="noopener">数据收集到MongoDB</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/http-to-hdfs" target="_blank" rel="noopener">数据收集到HDFS</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/apache-to-s3" target="_blank" rel="noopener">数据归档到Amazon S3</a></li>
+</ul>
+</li>
+<li>基础配置<ul>
+<li><a href="https://docs.fluentd.org/v1.0/articles/config-file" target="_blank" rel="noopener">config 文件</a></li>
+</ul>
+</li>
+<li>应用日志<ul>
+<li><a href="https://docs.fluentd.org/v1.0/articles/ruby" target="_blank" rel="noopener">Ruby</a>,<a href="https://docs.fluentd.org/v1.0/articles/java" target="_blank" rel="noopener">Java</a>,<a href="https://docs.fluentd.org/v1.0/articles/python" target="_blank" rel="noopener">Python</a>,<a href="https://docs.fluentd.org/v1.0/articles/php" target="_blank" rel="noopener">PHP</a>,<a href="https://docs.fluentd.org/v1.0/articles/perl" target="_blank" rel="noopener">Perl</a>,<a href="https://docs.fluentd.org/v1.0/articles/nodejs" target="_blank" rel="noopener">Node.js</a>,<a href="https://docs.fluentd.org/v1.0/articles/scala" target="_blank" rel="noopener">Scala</a></li>
+</ul>
+</li>
+</ul>
+<h4 id="了解更多信息"><a href="#了解更多信息" class="headerlink" title="了解更多信息"></a>了解更多信息</h4><p>下面显示的文章将提供详细信息，供您了解更多关于Fluentd的信息</p>
+<ul>
+<li><a href="https://docs.fluentd.org/v1.0/articles/architecture" target="_blank" rel="noopener">架构概述</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/life-of-a-fluentd-event" target="_blank" rel="noopener">一个Fluentd事件的生命周期</a></li>
+<li>插件概述<ul>
+<li><a href="https://docs.fluentd.org/v1.0/articles/input-plugin-overview" target="_blank" rel="noopener">Input Plugins</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/output-plugin-overview" target="_blank" rel="noopener">Output Plugins</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/buffer-plugin-overview" target="_blank" rel="noopener">Buffer Plugins</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/filter-plugin-overview" target="_blank" rel="noopener">Filter Plugins</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/parser-plugin-overview" target="_blank" rel="noopener">Parser Plugins</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/formatter-plugin-overview" target="_blank" rel="noopener">Formatter Plugins</a></li>
+</ul>
+</li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/high-availability" target="_blank" rel="noopener">高可用性配置</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/faq" target="_blank" rel="noopener">FAQ</a></li>
+</ul>
+<hr>
+<h3 id="Fluentd常用帮助文档"><a href="#Fluentd常用帮助文档" class="headerlink" title="Fluentd常用帮助文档"></a>Fluentd常用帮助文档</h3><ul>
+<li><a href="https://docs.fluentd.org/v1.0/articles/life-of-a-fluentd-event" target="_blank" rel="noopener">Fluentd event的生命周期</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/config-file" target="_blank" rel="noopener">配置文件语法</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/command-line-option" target="_blank" rel="noopener">Fluentd命令行选项</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/fluentd-ui" target="_blank" rel="noopener">Fluentd的UI界面</a></li>
+<li>Fluent7大插件<ul>
+<li>Input Plugins<ul>
+<li><a href="https://docs.fluentd.org/v1.0/categories/in_tail" target="_blank" rel="noopener">in_tail</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/in_forward" target="_blank" rel="noopener">in_forward</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/in_udp" target="_blank" rel="noopener">in_udp</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/in_tcp" target="_blank" rel="noopener">in_tcp</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/in_http" target="_blank" rel="noopener">in_http</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/in_syslog" target="_blank" rel="noopener">in_syslog</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/in_exec" target="_blank" rel="noopener">in_exec</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/in_dummy" target="_blank" rel="noopener">in_dummy</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/in_monitor_agent" target="_blank" rel="noopener">in_monitor_agent</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/in_windows_eventlog" target="_blank" rel="noopener">in_windows_eventlog</a></li>
+</ul>
+</li>
+<li>Output Plugins<ul>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_fil://docs.fluentd.org/v1.0/categories/out_file" target="_blank" rel="noopener">out_file</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_s3" target="_blank" rel="noopener">out_s3</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_elasticsearch" target="_blank" rel="noopener">out_elasticsearch</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_forward" target="_blank" rel="noopener">out_forward</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_exec" target="_blank" rel="noopener">out_exec</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_exec_filter" target="_blank" rel="noopener">out_exec_filter</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_copy" target="_blank" rel="noopener">out_copy</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_roundrobin" target="_blank" rel="noopener">out_roundrobin</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_stdout" target="_blank" rel="noopener">out_stdout</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_null" target="_blank" rel="noopener">out_null</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_mongo" target="_blank" rel="noopener">out_mongo</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_mongo_replset" target="_blank" rel="noopener">out_mongo_replset</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_relabel" target="_blank" rel="noopener">out_relabel</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_rewrite_tag_filter" target="_blank" rel="noopener">out_rewrite_tag_filter</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/out_webhdfs" target="_blank" rel="noopener">out_webhdfs</a></li>
+</ul>
+</li>
+<li>Filter Plugins<ul>
+<li><a href="https://docs.fluentd.org/v1.0/categories/filter_record_transformer" target="_blank" rel="noopener">filter_record_transformer</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/filter_grep" target="_blank" rel="noopener">filter_grep</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/filter_parser" target="_blank" rel="noopener">filter_parser</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/filter_geoip" target="_blank" rel="noopener">filter_geoip</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/filter_stdout" target="_blank" rel="noopener">filter_stdout</a></li>
+</ul>
+</li>
+<li>Parser Plugins<ul>
+<li><a href="https://docs.fluentd.org/v1.0/categories/parser_regexp" target="_blank" rel="noopener">parser_regexp</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/parser_apache2" target="_blank" rel="noopener">parser_apache2</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/parser_apache_error" target="_blank" rel="noopener">parser_apache_error</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/parser_nginx" target="_blank" rel="noopener">parser_nginx</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/parser_syslog" target="_blank" rel="noopener">parser_syslog</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/parser_ltsv" target="_blank" rel="noopener">parser_ltsv</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/parser_csv" target="_blank" rel="noopener">parser_csv</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/parser_tsv" target="_blank" rel="noopener">parser_tsv</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/parser_json" target="_blank" rel="noopener">parser_json</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/parser_multiline" target="_blank" rel="noopener">parser_multiline</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/parser_none" target="_blank" rel="noopener">parser_none</a></li>
+</ul>
+</li>
+<li>Formatter Plugins<ul>
+<li><a href="https://docs.fluentd.org/v1.0/categories/formatter_out_file" target="_blank" rel="noopener">formatter_out_file</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/formatter_json" target="_blank" rel="noopener">formatter_json</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/formatter_ltsv" target="_blank" rel="noopener">formatter_ltsv</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/formatter_csv" target="_blank" rel="noopener">formatter_csv</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/formatter_msgpack" target="_blank" rel="noopener">formatter_msgpack</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/formatter_hash" target="_blank" rel="noopener">formatter_hash</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/formatter_single_value" target="_blank" rel="noopener">formatter_single_value</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/formatter_stdout" target="_blank" rel="noopener">formatter_stdout</a></li>
+</ul>
+</li>
+<li>Buffer Plugins<ul>
+<li><a href="https://docs.fluentd.org/v1.0/categories/buf_memory" target="_blank" rel="noopener">buf_memory</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/categories/buf_file" target="_blank" rel="noopener">buf_file</a></li>
+</ul>
+</li>
+<li>Storage Plugins<ul>
+<li><a href="https://docs.fluentd.org/v1.0/categories/storage_local" target="_blank" rel="noopener">storage_local</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>Fluentd</tag>
+        <tag>数据收集</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>GoAccess使用教程</title>
+    <url>/2018/03/30/GoAccess%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/</url>
+    <content><![CDATA[<p>为了查看本站点的健康状况以及用户访问情况，就需要定期的分析服务器的 access 日志。但是由于没有使用日志分析工具，只能使用 cat、awk、sed 等命令做一些简单的日志分析统计，这样分析结果不理想也不全面，方法也极不高效。作为个人站点更适合引入轻量级的日志分析工具，例如 <a href="https://goaccess.io/" target="_blank" rel="noopener">GoAccess</a> ，其使用简单且分析效果较好</p>
+<a id="more"></a>
+
+
+
+<p><a href="https://github.com/allinurl/goaccess" target="_blank" rel="noopener">allinurl/goaccess</a><br><a href="https://goaccess.io/man" target="_blank" rel="noopener">GoAccess 官方文档</a><br><a href="https://www.fanhaobai.com/2017/06/go-access.html" target="_blank" rel="noopener">使用GoAccess分析Nginx日志</a><br><a href="https://wzfou.com/ngxtop-goaccess/" target="_blank" rel="noopener">服务器日志分析利器:ngxtop和GoAccess-实时监控可视化管理快速找出异常来源</a></p>
+<h3 id="使用GoAccess分析Nginx日志"><a href="#使用GoAccess分析Nginx日志" class="headerlink" title="使用GoAccess分析Nginx日志"></a>使用GoAccess分析Nginx日志</h3><h4 id="安装GoAccess"><a href="#安装GoAccess" class="headerlink" title="安装GoAccess"></a>安装GoAccess</h4><ul>
+<li>安装GoAccss前提<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 安装GoAccess前提</span><br><span class="line">yum install glib2 glib2-devel GeoIP-devel  ncurses-devel zlib zlib-devel libtokyocabinet-dev</span><br></pre></td></tr></table></figure></li>
+<li>使用到GoAccess 磁盘存储选项（ON-DISK STORAGE OPTIONS）特性，需要配置–enable-tcb = btree<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 安装TokyoCabinet</span><br><span class="line">wget https://src.fedoraproject.org/repo/pkgs/tokyocabinet/tokyocabinet-1.4.48.tar.gz/md5/fd03df6965f8f56dd5b8518ca43b4f5e/tokyocabinet-1.4.48.tar.gz</span><br><span class="line">tar -xzvf tokyocabinet-1.4.48.tar.gz</span><br><span class="line">cd tokyocabinet-1.4.48</span><br><span class="line">./configure --prefix=/usr --enable-off64 --enable-fastest --disable-zlib --disable-bzip</span><br><span class="line">#  Cygwin only - some processing is required</span><br><span class="line">sed -i.bak &apos;s/iprintf/my_iprintf/g&apos; *.c *.h bros/*.c</span><br><span class="line">sed -i.bak -e &apos;1332d&apos; tcucodec.c</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure></li>
+<li>安装GoAccess  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 安装</span><br><span class="line">wget http://tar.goaccess.io/goaccess-1.2.tar.gz</span><br><span class="line">tar -xzvf goaccess-1.2.tar.gz</span><br><span class="line">cd goaccess-1.2/</span><br><span class="line">./configure --enable-utf8 --enable-geoip=legacy --enable-tcb=btree</span><br><span class="line">make</span><br><span class="line">make install</span><br><span class="line"># 建立软连接</span><br><span class="line">ln -s /usr/local/bin/goaccess /usr/bin/goaccess</span><br></pre></td></tr></table></figure></li>
+<li>根据你自己的需要，你可以在安装GoAccess调整配置选项。如下：<ul>
+<li>–enable-debug 使用调试标志编译且关闭编译器优化。</li>
+<li>–enable-utf8 宽字符支持。依赖 Ncursesw 模块。</li>
+<li>–enable-geoip=&lt;legacy|mmdb&gt; 地理位置支持。依赖 MaxMind GeoIP 模块。 legacy 将使用原始 GeoIP 数据库。 mmdb 将使用增强版 GeoIP2 数据库。</li>
+<li>–enable-tcb=&lt;memhash|btree&gt; Tokyo Cabinet 存储支持。 memhash 将使用 Tokyo Cabinet 的内存哈希数据库。btree 将使用 Tokyo Cabinet 的磁盘 B+Tree 数据库。 </li>
+<li>–-disable-zlib 禁止在 B+Tree 数据库上使用 zlib 压缩。</li>
+<li>–disable-bzip 禁止在 B+Tree 数据库上使用 bzip2 压缩。</li>
+<li>–with-getline 使用动态扩展行缓冲区用来解析完整的行请求，否则将使用固定大小(4096)的缓冲区。</li>
+<li>–with-openssl 使 GoAccess 与其 WebSocket 服务器之间的通信能够支持 OpenSSL。</li>
+</ul>
+</li>
+</ul>
+<h4 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h4><ul>
+<li>安装完成后，默认将配置文件goaccess.conf放置于/usr/local/etc路径，为了统一管理，使用cp /usr/local/etc/goaccess.conf /data1/coffee/goaccess_test/令将其拷贝到个人指定目录下。</li>
+<li>可以对配置文件做一些配置<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">time-format %H:%M:%S</span><br><span class="line">date-format %d/%b/%Y</span><br><span class="line">log-format %h %^[%d:%t %^] &quot;%r&quot; %s %b &quot;%R&quot; &quot;%u&quot;</span><br></pre></td></tr></table></figure></li>
+<li>其中，log-format 与 access.log 的 log_format 格式对应，每个参数以空格或者制表符分割，参考<a href="http://httpd.apache.org/docs/current/mod/mod_log_config.html" target="_blank" rel="noopener">自定义日志格式字符串</a>。参数说明如下：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">%x  与时间格式和日期格式变量匹配的日期和时间字段。当给定时间戳而不是日期和时间在两个单独的变量时使用这个</span><br><span class="line">%t  匹配time-format格式的时间字段</span><br><span class="line">%d  匹配date-format格式的日期字段</span><br><span class="line">%v  服务器名称根据规范名称设置（服务器块或虚拟主机）</span><br><span class="line">%e  这是由HTTP验证确定的请求文档的人的用户名</span><br><span class="line">%h  host(客户端ip地址，包括ipv4和ipv6)</span><br><span class="line">%r  来自客户端的请求行</span><br><span class="line">%m  请求的方法</span><br><span class="line">%U  URL路径</span><br><span class="line">%q  查询字符串</span><br><span class="line">%H  请求协议</span><br><span class="line">%s  服务器响应的状态码</span><br><span class="line">%b  服务器返回的内容大小</span><br><span class="line">%R  HTTP请求头的referer字段</span><br><span class="line">%u  用户代理的HTTP请求报头</span><br><span class="line">%D  请求所花费的时间，单位微秒</span><br><span class="line">%T  请求所花费的时间，单位秒</span><br><span class="line">%L  以毫秒为单位提供请求所需的时间，以十进制数表示</span><br><span class="line">%^  忽略这一字段</span><br><span class="line">%~  向前移动通过日志字符串，直到找到非空格（！isspace）字符</span><br><span class="line">~h  X-Forwarded-For（XFF）字段中的主机（客户端IP地址，IPv4或IPv6）</span><br></pre></td></tr></table></figure></li>
+<li>其他常用配置<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">real-time-html true</span><br><span class="line">ssl-cert &lt;cert.crt&gt;</span><br><span class="line">ssl-key &lt;priv.key&gt;</span><br><span class="line">ws-url wss://&lt;your-domain&gt;</span><br><span class="line">port &lt;port&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>需要注意的几点:<ul>
+<li>real-time-html 用来使用实时刷新特性</li>
+<li>port 是用来和浏览器通信的，选一个没被占用的就行（别忘了在防火墙里开启端口！）</li>
+<li>如果你不走 https 的话，ssl-cert，ssl-key，ws-url都不是必需的</li>
+<li>说一下 ws-url，我之前没有设置这个选项的时候 HTML 里 WebSocket 用的协议是 ws://， 浏览器是不允许在 https 网页里使用非加密协议的，找了一圈发现 ws-url 这个选项，其实我觉得应该叫 ws-scheme 才贴切</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h4><ul>
+<li>查看 GoAccess 命令参数<em>goaccess -h</em>，常用参数如下：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 常用参数</span><br><span class="line">-a --agent-list 启用由主机用户代理的列表。为了更快的解析，不启用该项</span><br><span class="line">-d --with-output-resolver 在HTML/JSON输出中开启IP解析，会使用GeoIP来进行IP解析</span><br><span class="line">-f --log-file 需要分析的日志文件路径</span><br><span class="line">-p --config-file 配置文件路径</span><br><span class="line">-o --output 输出格式，支持html、json、csv</span><br><span class="line">-m --with-mouse 控制面板支持鼠标点击</span><br><span class="line">-q --no-query-string 忽略请求的参数部分</span><br><span class="line">--real-time-html 实时生成HTML报告</span><br><span class="line">--daemonize 守护进程模式，--real-time-html时使用</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="分析日志"><a href="#分析日志" class="headerlink" title="分析日志"></a>分析日志</h4><p>分析日志/www/wwwlogs/access.log</p>
+<h5 id="终端控制台模式"><a href="#终端控制台模式" class="headerlink" title="终端控制台模式"></a>终端控制台模式</h5><ul>
+<li>执行命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf</span><br></pre></td></tr></table></figure></li>
+<li>控制台下的操作方法：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">F1   主帮助页面</span><br><span class="line">F5   重绘主窗口</span><br><span class="line">q    退出</span><br><span class="line">1-15 跳转到对应编号的模块位置 </span><br><span class="line">o    打开当前模块的详细视图</span><br><span class="line">j    当前模块向下滚动</span><br><span class="line">k    当前模块向上滚动</span><br><span class="line">s    对模块排序</span><br><span class="line">/    在所有模块中搜索匹配</span><br><span class="line">n    查找下一个出现的位置</span><br><span class="line">g    移动到第一个模块顶部</span><br><span class="line">G    移动到最后一个模块底部</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="生成HTML报告"><a href="#生成HTML报告" class="headerlink" title="生成HTML报告"></a>生成HTML报告</h5><ul>
+<li>执行命令：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.html</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="生成JSON报告"><a href="#生成JSON报告" class="headerlink" title="生成JSON报告"></a>生成JSON报告</h5><ul>
+<li>执行命令：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.json</span><br></pre></td></tr></table></figure>
+<h5 id="生成CSV文件"><a href="#生成CSV文件" class="headerlink" title="生成CSV文件"></a>生成CSV文件</h5></li>
+<li>执行命令：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf --no-csv-summary -o /data1/coffee/goaccess_test/html/go-access.csv</span><br></pre></td></tr></table></figure>
+<h5 id="其他特征"><a href="#其他特征" class="headerlink" title="其他特征"></a>其他特征</h5></li>
+<li>支持管道实时分析过滤<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">tail -f access.log | goaccess -</span><br></pre></td></tr></table></figure></li>
+<li>支持多日志文件分析<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">goaccess access.log access.log.1</span><br><span class="line"># 甚至可以在读取常规文件时从管道解析文件</span><br><span class="line">cat access.log.2 | goaccess access.log access.log.1 -</span><br></pre></td></tr></table></figure>
+<h5 id="实时html输出"><a href="#实时html输出" class="headerlink" title="实时html输出"></a>实时html输出</h5></li>
+<li>执行命令<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.html --real-time-html</span><br></pre></td></tr></table></figure></li>
+<li>默认情况下，GoAccess使用生成的报告的主机名，也可以指定URL，例如：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.html --real-time-html --ws-url = goaccess.io</span><br></pre></td></tr></table></figure></li>
+<li>默认情况下，GoAccess监听的是7890端口，也可以指定端口<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.html --real-time-html --port = 9870</span><br></pre></td></tr></table></figure></li>
+<li>将WebSocket服务器绑定到除0.0.0.0以外的其他地址，可以将其指定<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.html --real-time-html --addr = 127.0.0.1</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="daemonize-方式"><a href="#daemonize-方式" class="headerlink" title="daemonize 方式"></a>daemonize 方式</h5><ul>
+<li>GoAccess 已经为我们考虑到这点了，它可以以 daemonize 模式运行，并提供创建实时 HTML 的功能，只需要在启动命令后追加–real-time-html –daemonize参数即可。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.html --real-time-html --daemonize</span><br><span class="line"># 监听端口7890</span><br><span class="line">$ netstat -tunpl | grep &quot;goaccess&quot;</span><br><span class="line">tcp   0   0 0.0.0.0:7890      0.0.0.0:*     LISTEN      21136/goaccess</span><br></pre></td></tr></table></figure></li>
+<li>以守护进程启动 GoAccess 后，使用 Websocket 建立长连接，它默认监听 7890 端口，可以通过–port参数指定端口号。</li>
+<li>由于我的站点启用了 HTTPS，所以 GoAccess 也需要使用 openssl，在配置文件goaccess.conf中配置ssl-cert和ssl-key项，并确保在安装过程中 configure 时已添加–with-openssl项来支持 openssl 。当使用 HTTPS 后 Websocket 通信时也应该使用 wss 协议，需要将ws-url项配置为wss://<a href="http://www.domain.com。" target="_blank" rel="noopener">www.domain.com。</a></li>
+</ul>
+<h5 id="crontab-方式"><a href="#crontab-方式" class="headerlink" title="crontab 方式"></a>crontab 方式</h5><p>在某些场景下，没有这样的实时性要求，可采用 crontab 机制实现定时更新 HTML 报表。例如：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 每天执行</span><br><span class="line">0 0 1 * *</span><br><span class="line">goaccess -a -d -f /www/wwwlogs/access.log -p /data1/coffee/goaccess_test/goaccess.conf -o /data1/coffee/goaccess_test/html/go-access.html 2&gt; /data1/coffee/goaccess_test/logs/go-access.log</span><br></pre></td></tr></table></figure>
+
+<h5 id="服务器"><a href="#服务器" class="headerlink" title="服务器"></a>服务器</h5><p>如果我们想以较低的优先级运行GoAccess，我们可以将其运行为：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nice -n 19 goaccess access.log -a</span><br></pre></td></tr></table></figure>
+<p>如果你不想在服务器上安装它，你仍然可以从本地机器上运行它：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ssh root @ server&apos;cat /var/log/apache2/access.log&apos;| goaccess -a -</span><br></pre></td></tr></table></figure>
+
+<h5 id="处理日志增量"><a href="#处理日志增量" class="headerlink" title="处理日志增量"></a>处理日志增量</h5><ul>
+<li>GoAccess能够通过磁盘B +树数据库逐步处理日志。它的工作原理如下：<ul>
+<li>数据集必须先保存–keep-db-files，然后可以加载相同的数据集–load-from-disk</li>
+<li>如果新数据通过（传送或通过日志文件），它会将其附加到原始数据集</li>
+<li>为了始终保存数据，–keep-db-files必须使用</li>
+<li>如果–load-from-disk没有使用–keep-db-files，关闭程序后数据库文件将被删除</li>
+</ul>
+</li>
+<li>例子：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 上个月访问日志</span><br><span class="line">goaccess access.log.1 --keep-db-files</span><br></pre></td></tr></table></figure>
+然后，加载它<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 追加本月访问日志，并保存新数据</span><br><span class="line">goaccess access.log --load-from-disk --keep-db-files</span><br></pre></td></tr></table></figure>
+仅读取持久数据（不解析新数据）<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">goaccess --load-from-disk --keep-db-files</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h5><ul>
+<li>当 access 日志被切割后，怎么合理使用 GoAccess 分析日志，–keep-db-files这个功能倒是可以尝试，这样就可以只分析新生产的日志文件了。</li>
+<li>一个实时的例子：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">goaccess -a -d \</span><br><span class="line">  -f /var/log/apache2/access.log \</span><br><span class="line">  -p /data1/coffee/goaccess_test/goaccess.conf \</span><br><span class="line">  -o /data1/coffee/goaccess_test/html/go-access.html \</span><br><span class="line">  --real-time-html \</span><br><span class="line">  --load-from-disk \</span><br><span class="line">  --keep-db-files</span><br></pre></td></tr></table></figure></li>
+<li>另一个实时的例子：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">tail -f /var/log/apache2/access.log | goaccess \</span><br><span class="line">  -p /data1/coffee/goaccess_test/goaccess.conf \</span><br><span class="line">  -o /data1/coffee/goaccess_test/html/go-access.html \</span><br><span class="line">  --real-time-html \</span><br><span class="line">  --load-from-disk \</span><br><span class="line">  --keep-db-files -</span><br></pre></td></tr></table></figure></li>
+<li>注意–real-time-html 和 –daemonize冲突，不可同时使用</li>
+</ul>
+<h4 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a><a href="https://goaccess.io/faq" target="_blank" rel="noopener">常见问题</a></h4><p>以下罗列一些问题：</p>
+<ul>
+<li>解析日志文件时GoAccess的速度有多快？</li>
+<li>GoAccess的内存占用量是多少？</li>
+<li>我们如何配置Apache或Nginx的日志/日期/时间格式？</li>
+<li>配置文件位于何处？</li>
+<li>我如何配置IIS日志格式？</li>
+<li>我如何生成静态HTML报告？</li>
+<li>我如何生成实时HTML报告？</li>
+</ul>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>GoAccess</tag>
+        <tag>分析nginx日志</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2018/03/27/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+]]></content>
+  </entry>
+</search>

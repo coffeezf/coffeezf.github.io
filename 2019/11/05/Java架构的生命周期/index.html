@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="Coffeezf's Blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="随着互联网的发展，网站应用的规模不断扩大，常规的垂直应用架构已无法应对，分布式服务架构以及流动计算架构势在必行，亟需一个治理系统确保架构有条不紊的演进。">
+<meta name="keywords" content="java,架构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java架构的生命周期">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;11&#x2F;05&#x2F;Java%E6%9E%B6%E6%9E%84%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F&#x2F;index.html">
+<meta property="og:site_name" content="Coffeezf&#39;s Blog">
+<meta property="og:description" content="随着互联网的发展，网站应用的规模不断扩大，常规的垂直应用架构已无法应对，分布式服务架构以及流动计算架构势在必行，亟需一个治理系统确保架构有条不紊的演进。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-11-05T15:50:18.254Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2019/11/05/Java%E6%9E%B6%E6%9E%84%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Java架构的生命周期 | Coffeezf's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Coffeezf's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/05/Java%E6%9E%B6%E6%9E%84%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Coffee">
+      <meta itemprop="description" content="磨刀不误砍柴工">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Coffeezf's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java架构的生命周期
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2019-11-05 20:38:01 / 修改时间：23:50:18" itemprop="dateCreated datePublished" datetime="2019-11-05T20:38:01+08:00">2019-11-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p> 随着互联网的发展，网站应用的规模不断扩大，常规的垂直应用架构已无法应对，分布式服务架构以及流动计算架构势在必行，亟需一个治理系统确保架构有条不紊的演进。 </p>
+<a id="more"></a>
+
+
+
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><ol>
+<li><p>web1.0时代（1996年左右）</p>
+</li>
+<li><p>web2.0时代（2006年左右）</p>
+</li>
+<li><p>互联网时代（2011年左右）</p>
+<p>-&gt;互联网+ -&gt; 智慧城市</p>
+<p>嘀嘀打车</p>
+<p>饿了么</p>
+</li>
+<li><p>大数据 + 云计算</p>
+</li>
+<li><p>AI 未来以来时代</p>
+</li>
+</ol>
+<h2 id="第一时期-单一应用架构"><a href="#第一时期-单一应用架构" class="headerlink" title="第一时期   单一应用架构"></a>第一时期   单一应用架构</h2><p>all in one.所有的模块和代码都在一起。技术也不分层。（2000年左右）也是网站初期的最早架构。也是互联网发展的最早十七。所有代码、业务都卸载JSP里面。</p>
+<p><strong>问题</strong>：</p>
+<ol>
+<li>代码不具备可维护性；</li>
+<li>容错性差；</li>
+</ol>
+<blockquote>
+<p>因为所有的代码都卸载jsp页面中，当用户访问或某些原因发生异常</p>
+<ol>
+<li>用户会直接看到异常信息；</li>
+<li>有些情况下，该错误可能会导致服务宕机；</li>
+</ol>
+</blockquote>
+<h4 id="第一时期后阶段"><a href="#第一时期后阶段" class="headerlink" title="第一时期后阶段"></a>第一时期后阶段</h4><p><strong>解决方案</strong>：</p>
+<ol>
+<li><p>分成开发（提高维护性）</p>
+</li>
+<li><p>MVC架构是一个基于Java Web应用的设计模式；</p>
+</li>
+<li><p>服务器分离部署</p>
+</li>
+</ol>
+<p><strong>特点：</strong></p>
+<ol>
+<li>MVC分层开发，提高了维护性和解决容错性问题；</li>
+<li>数据库和项目分离部署；</li>
+</ol>
+<p><strong>问题：</strong></p>
+<p>随着用户的访问量持续增加，单台应用服务器无法满足需求。（高并发问题）</p>
+<p><strong>解决方案：</strong></p>
+<p>集群（集群方案解决）</p>
+<p><strong>会出现的问题：</strong></p>
+<ol>
+<li>高并发</li>
+<li>高可用</li>
+<li>高性能</li>
+</ol>
+<p><strong>如何提高系统并发能力：</strong></p>
+<ol>
+<li>垂直扩展（提升单机处理能力）;</li>
+<li>水平扩展（不断加服务器扩容）;</li>
+</ol>
+<h4 id="集群操作"><a href="#集群操作" class="headerlink" title="集群操作"></a>集群操作</h4><p>集群：同一个业务，部署在多个服务器上。</p>
+<p><strong>特点：</strong></p>
+<p>项目采用集群（多台服务器部署）</p>
+<p><strong>解决问题：</strong></p>
+<ol>
+<li><p>支持高并发；</p>
+</li>
+<li><p>支持高可用；</p>
+</li>
+</ol>
+<p><strong>问题：</strong></p>
+<ol>
+<li>（集群）用户的请求该往哪里进行转发？</li>
+<li>Session如何共享？Redis Cluster（Spring session + Redis）实现</li>
+</ol>
+<p><strong>数据库压力变大</strong></p>
+<p>通过nginx + tomcat集群方案，支持高并发（应用的性能提升访问），但是数据库的负载能力慢慢增加</p>
+<p><strong>问题：</strong></p>
+<p>怎么来提高数据库层面的访问压力？</p>
+<p><strong>解决方案：</strong></p>
+<p>读写分离</p>
+<p>主从数据库之间进行数据同步。master主要负责增删改操作，slave负责读（查询）操作。</p>
+<p>mysql本身就支持master-slave的功能（主从复制功能）</p>
+<p><strong>使用搜索引擎缓解数据库的访问压力+能力</strong></p>
+<p>数据库本身对大数据量查询效率慢，对模糊查询支持不是特别优秀。搜索是非常核心的功能（即使做了数据库读写分离），很多功能也不能有效解决（分词技术），针对该问题，有必要引入全文检索服务器功能。</p>
+<p><strong>目前主流的搜索引擎技术：</strong></p>
+<p>Solr  ElasticSearch</p>
+<p><strong>引入缓存机制减轻数据库的访问压力</strong></p>
+<p>随着访问量的持续增加，（数据库的访问压力持续增大，甚至无法满足需求）。虽然做了主从复制，对于热点数据，如果每次都从数据库中查询，数据库无法应付，导致无法对外提供服务。</p>
+<p>最佳解决方案： Redis</p>
+<ol>
+<li>读写性能非常好；</li>
+<li>提供了丰富的数据类型；</li>
+<li>原子性；</li>
+</ol>
+<p><strong>数据库的表进行水平和垂直拆分</strong></p>
+<p>一张表里面又1千条数据，查询的性能很高</p>
+<p>如查询有100万数据，查询的性能很慢</p>
+<p>单个表性能做提升，能力终归还是有限的</p>
+<p><strong>表为主：</strong></p>
+<ol>
+<li>垂直：一张表的字段总冷热字段拆分出两张表</li>
+<li>水平：按需求进行拆分。（省份、时间、）</li>
+<li>分库分表：采用第三方数据库中间件：mycat sharding-jdbc jrds(阿里)</li>
+</ol>
+<p><strong>当前设计特点：</strong></p>
+<p>通过设计保证高并发、高可用。（不断对服务器进行扩容）</p>
+<p>当前很多公司用的是这种架构。</p>
+<p><strong>问题：</strong></p>
+<ol>
+<li>服务器价钱增加。服务器忙闲不均问题，服务器的维护、人工成本、大量运维工程师</li>
+<li>可维护性很差</li>
+<li>可扩展性差（服务器）</li>
+<li>协同开发不方便（大家都去修改相同业务代码，易发生代码冲突/错误问题）</li>
+<li>单体架构（随着业务需求的不断增加，应用代码会变的越来越多），导致服务器部署时占用的磁盘空间变大。</li>
+</ol>
+<h2 id="第二时期-垂直应用架构"><a href="#第二时期-垂直应用架构" class="headerlink" title="第二时期 垂直应用架构"></a>第二时期 垂直应用架构</h2><p> 当访问量逐渐增大，单一应用增加机器带来的加速度越来越小，将应用拆成互不相干的几个应用，以提升效率。此时，用于加速前端页面开发的Web框架(MVC)是关键。 </p>
+<p><strong>水平拆分</strong></p>
+<p>将一个打的应用拆分成多个小应用</p>
+<p>一个原来的项目包含（controller/service/mapper/pojo…）</p>
+<p>拆分成不同的小应用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">parent   pom       # 父工程（放所有的pom.xml）</span><br><span class="line">common.jar         # 公共库（相关工具类）</span><br><span class="line">pojo.jar           # java bean</span><br><span class="line">mapper.jar         # 数据持久层</span><br><span class="line">service.jar        # 业务逻辑层</span><br><span class="line">web.war            # web访问层</span><br></pre></td></tr></table></figure>
+
+<p>如何拆分，参考：<a href="https://www.bilibili.com/video/av70669026/?p=9" target="_blank" rel="noopener">单体项目水平拆分</a></p>
+<p><strong>解决问题：</strong></p>
+<ol>
+<li>模块复用；</li>
+<li>减少了服务器内容部署；</li>
+</ol>
+<p><strong>垂直拆分</strong></p>
+<p>按功能拆分</p>
+<p>将一个大的应用按功能拆分成多个互不相干的小应用，每个应用都是独立的WEB应用程序</p>
+<p><strong>解决问题：</strong></p>
+<ol>
+<li>维护性（如果发生需求变更，只需要调整某个应用模块即可）；</li>
+<li>功能扩展（随着业务的不断增加，只需要创建新的WEB程序即可）；</li>
+<li>协同开发方便（不同的团队修改不同的代码）；</li>
+<li>部署内容大小（性能扩展），如果哪台访问量大，只需要对该服务多部署几台即可；</li>
+</ol>
+<p>此时，用于加速前端页面开发的web框架（MVC）是关键。</p>
+<p><strong>问题：</strong></p>
+<ol>
+<li>客户对页面的要求会越来越高？（修改频繁）需要重新部署后台应用程序？（每个应用从头到尾都是完整的）。</li>
+<li>随着业务需求不断增加，需要很多个互不相干应用部署？这些应用之间一定会需要业务交互？</li>
+</ol>
+<h2 id="第三时期-分布式服务架构"><a href="#第三时期-分布式服务架构" class="headerlink" title="第三时期 分布式服务架构"></a>第三时期 分布式服务架构</h2><p> 当垂直应用越来越多，应用之间交互不可避免，将核心业务抽取出来，作为独立的服务，逐渐形成稳定的服务中心，使前端应用能更快速的响应多变的市场需求。此时，用于提高业务复用及整合的分布式服务框架(RPC)是关键。 </p>
+<p><strong>分布式服务架构</strong></p>
+<p>分布式：将一个业务拆分成多个子业务，部署在不同的服务器上。</p>
+<p><strong>解决方案：</strong></p>
+<ol>
+<li><p>客户对页面的要求会越来越高？（修改频繁）需要重新部署后台应用程序？（每个应用从头到尾都是完整的）。</p>
+<p>答：前后端分离</p>
+</li>
+</ol>
+<ol start="2">
+<li>随着业务需求不断增加，需要很多个互不相干应用部署？这些应用之间一定会需要业务交互？</li>
+</ol>
+<p><strong>分析：</strong></p>
+<p>以前如果都在一台服务器上（模块之间通过依赖jar完成调用）</p>
+<p>现在都在不同的服务器上做的部署（分布式）。服务和服务之间通过进程间调用。</p>
+<p>答：RPC/HTTP/HttpClient</p>
+<p><strong>此时，架构的改变一定会带来一些新的技术和新的问题</strong></p>
+<p><strong>问题：</strong></p>
+<ol>
+<li>分布式事务；</li>
+<li>分布式锁；</li>
+<li>分布式Session；</li>
+<li>分布式日志；</li>
+</ol>
+<p><strong>问题：</strong></p>
+<p>此时，用于提高业务服用和整合的分布式服务框架（RPC）是关键</p>
+<ol>
+<li>当服务越来越多，服务和服务之间的调用非常的混乱（我都不知道你有哪些服务）；</li>
+<li>当服务越来越多，容量的评估，小服务资源的浪费等问题逐渐显现；</li>
+</ol>
+<h2 id="第四时期-流动计算框架"><a href="#第四时期-流动计算框架" class="headerlink" title="第四时期 流动计算框架"></a>第四时期 流动计算框架</h2><p> 当服务越来越多，容量的评估，小服务资源的浪费等问题逐渐显现，此时需增加一个调度中心基于访问压力实时管理集群容量，提高集群利用率。此时，用于提高机器利用率的资源调度和治理中心(SOA)是关键。 </p>
+<p><strong>SOA</strong></p>
+<p>面向服务的架构（SOA）</p>
+<p><strong>分布式服务治理（解决方案）中间件：Dubbo/SpringCloud</strong></p>
+<p>基于访问压力实时管理集群容量，提高集群利用率。</p>
+<p>Dubbo底层用的RPC协议。（Dubbo是一个RPC框架）</p>
+<p>SpringCloud底层用的HTTP协议。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>微服务：</strong></p>
+<p>单体应用拆分成多个互不相干的小应用，每个小的应用称为微服务。</p>
+<p>SOA(面向服务架构)  -&gt;  微服务架构</p>
+<p><strong>问题：</strong></p>
+<ol>
+<li>构建单体应用时，（SSM）即可。服务进行拆分（多个小应用）比如10个应用（大量重复的jar包，大量重复的配置文件）？</li>
+</ol>
+<p><strong>解决方案：</strong></p>
+<p>SpringBoot</p>
+<p>SpringBoot目的：就是为了简化代码的开发和简化代码的框架构建。</p>
+<p><strong>架构的改变一定会带来新的技术和新的问题</strong></p>
+<p><strong>新技术：</strong></p>
+<p>SpringBoot Dubbo SpringCloud</p>
+<p><strong>新的问题和解决方案：</strong></p>
+<ol>
+<li>分布式事务——两段式提交；</li>
+<li>分布式锁——Redis SetNX功能，还有Zookeeper也能解决</li>
+<li>分布式Session——Redis 和Spring Session</li>
+<li>分布式日志——ELK</li>
+</ol>
+<p><strong>优点：</strong></p>
+<ol>
+<li>微服务对服务的拆分变得更细（复用性强），提高开发效率；</li>
+<li>可根据需求使用最新的需求，比如SSH，SSM技术可以随意选择；</li>
+<li>适用于互联网项目，迭代周期短、开发效率快；</li>
+</ol>
+<p><strong>缺点：</strong></p>
+<ol>
+<li>微服务过多的话、服务的管理（治理）成本高。</li>
+<li>不利于服务的部署，解决方案（Docker-&gt;K8s）</li>
+<li>技术难点在增加（分布式事务、锁、Session、日志）</li>
+<li>对程序员的技术要求变高（Dubbo SpringCloud SpringBoot Docker K8s）</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/java/" rel="tag"># java</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84/" rel="tag"># 架构</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/11/04/Hexo%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E6%95%99%E7%A8%8B/" rel="next" title="Hexo搭建博客教程">
+                  <i class="fa fa-chevron-left"></i> Hexo搭建博客教程
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第一时期-单一应用架构"><span class="nav-number">2.</span> <span class="nav-text">第一时期   单一应用架构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#第一时期后阶段"><span class="nav-number">2.0.1.</span> <span class="nav-text">第一时期后阶段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#集群操作"><span class="nav-number">2.0.2.</span> <span class="nav-text">集群操作</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第二时期-垂直应用架构"><span class="nav-number">3.</span> <span class="nav-text">第二时期 垂直应用架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第三时期-分布式服务架构"><span class="nav-number">4.</span> <span class="nav-text">第三时期 分布式服务架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第四时期-流动计算框架"><span class="nav-number">5.</span> <span class="nav-text">第四时期 流动计算框架</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="Coffee"
+    src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">Coffee</p>
+  <div class="site-description" itemprop="description">磨刀不误砍柴工</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Coffee</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
