@@ -36,7 +36,7 @@
 <li>有些情况下，该错误可能会导致服务宕机；</li>
 </ol>
 </blockquote>
-<h4 id="第一时期后阶段"><a href="#第一时期后阶段" class="headerlink" title="第一时期后阶段"></a>第一时期后阶段</h4><p><strong>解决方案</strong>：</p>
+<h3 id="第一时期后阶段"><a href="#第一时期后阶段" class="headerlink" title="第一时期后阶段"></a>第一时期后阶段</h3><p><strong>解决方案</strong>：</p>
 <ol>
 <li><p>分成开发（提高维护性）</p>
 </li>
@@ -65,7 +65,7 @@
 <li>垂直扩展（提升单机处理能力）;</li>
 <li>水平扩展（不断加服务器扩容）;</li>
 </ol>
-<h4 id="集群操作"><a href="#集群操作" class="headerlink" title="集群操作"></a>集群操作</h4><p>集群：同一个业务，部署在多个服务器上。</p>
+<h3 id="集群操作"><a href="#集群操作" class="headerlink" title="集群操作"></a>集群操作</h3><p>集群：同一个业务，部署在多个服务器上。</p>
 <p><strong>特点：</strong></p>
 <p>项目采用集群（多台服务器部署）</p>
 <p><strong>解决问题：</strong></p>
