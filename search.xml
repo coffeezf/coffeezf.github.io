@@ -6,7 +6,8 @@
     <content><![CDATA[<p>进程 &gt; 线程 &gt; 协程<br>协程是非常值得学习的概念，它是多任务编程的未来。但是Java全力推进这个事情的动力并不大。 java坚持多线程而不选择协程，仅仅是没有解决“协程”在java中的定义，以及“写的优雅”这个问题。</p>
 <a id="more"></a>
 
-<h1 id="进程、线程、协程的概念"><a href="#进程、线程、协程的概念" class="headerlink" title="进程、线程、协程的概念"></a>进程、线程、协程的概念</h1><p>进程 &gt; 线程 &gt; 协程</p>
+
+
 <h2 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h2><blockquote>
 <p>进程是系统资源分配的最小单位, 系统由一个个进程(程序)组成一般情况下，包括文本区域（text region）、数据区域（data region）和堆栈（stack region）。</p>
 <ul>
