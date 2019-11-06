@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Java架构的生命周期</title>
-    <url>/2019/11/05/Java%E6%9E%B6%E6%9E%84%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/</url>
+    <title>Java架构的演进</title>
+    <url>/2019/11/06/Java%E6%9E%B6%E6%9E%84%E7%9A%84%E6%BC%94%E8%BF%9B/</url>
     <content><![CDATA[<p> 随着互联网的发展，网站应用的规模不断扩大，常规的垂直应用架构已无法应对，分布式服务架构以及流动计算架构势在必行，亟需一个治理系统确保架构有条不紊的演进。 </p>
 <a id="more"></a>
 
